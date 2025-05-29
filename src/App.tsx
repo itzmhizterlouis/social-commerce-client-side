@@ -30,6 +30,7 @@ export interface PostItem {
   timeAgo: string;
   products: Product[];
   likes?: number;
+  liked?: boolean; // Add this property
 }
 
 function App() {
@@ -234,7 +235,7 @@ function App() {
 
         return {
           id: apiPost.postId?.toString() || `temp-${Date.now()}-${index}`,
-          username: apiPost.userId || 'Unknown User',
+          username: apiPost.fullName || 'Unknown User',
           avatarUrl: apiPost.avatarUrl || 'https://i.pravatar.cc/150?img=' + (Number(apiPost.postId || index) % 20),
           videoUrl: apiPost.contentUrl,
           caption: apiPost.caption || '',
@@ -247,6 +248,7 @@ function App() {
             imageUrl: p.imageUrl || 'https://via.placeholder.com/48x48?text=No+Image',
           })) : [],
           likes: apiPost.likes || 0,
+          liked: apiPost.liked
         };
       }).filter(Boolean) as PostItem[];
       setPosts(formattedPosts);

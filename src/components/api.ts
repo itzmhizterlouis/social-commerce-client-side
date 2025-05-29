@@ -148,6 +148,7 @@ interface GetPostsResponseItem {
   userId: string;
   products: GetPostsResponseProduct[];
   likes: number;
+  liked: boolean;
 }
 
 /**
@@ -202,6 +203,13 @@ export async function addToCartApi(productId: number) {
 export async function getCartApi(): Promise<BackendCartResponse> { // Changed return type
   const response = await authenticatedFetch(`${API_BASE_URL}/carts`, {
     method: 'GET',
+  });
+  return response;
+}
+
+export async function likePost(postId: number) {
+  const response = await authenticatedFetch(`${API_BASE_URL}/posts/like/${postId}`, {
+    method: 'PUT',
   });
   return response;
 }
