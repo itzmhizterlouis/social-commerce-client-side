@@ -1,12 +1,13 @@
 // src/components/Sidebar.tsx
 import React from 'react';
-import { HomeIcon, UserGroupIcon, ShoppingBagIcon, PlusCircleIcon, ShoppingCartIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, UserGroupIcon, ShoppingBagIcon, PlusCircleIcon, ShoppingCartIcon, Cog6ToothIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
 
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   cartItemCount: number;
   onCartIconClick: () => void;
+  onOrdersIconClick: () => void;
 }
 
 interface NavItemProps {
@@ -34,7 +35,7 @@ const NavItem: React.FC<NavItemProps> = ({ icon: Icon, text, active, onClick, ba
   </div>
 );
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, cartItemCount, onCartIconClick }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, cartItemCount, onCartIconClick, onOrdersIconClick }) => {
   return (
     <div className="hidden md:flex flex-col w-16 lg:w-64 border-r border-gray-700 p-4 sticky top-0 h-screen overflow-y-auto">
       {/* Logo/App Name */}
@@ -77,6 +78,13 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, cartItemCoun
           onClick={onCartIconClick}
           badgeContent={cartItemCount}
         />
+        <NavItem
+          icon={ClipboardDocumentListIcon} // Use the imported icon
+          text="Orders"
+          active={activeTab === 'Orders'} // Assuming 'Orders' will be a new active tab in App.tsx
+          onClick={onOrdersIconClick} // Use the new click handler
+        />
+
       </nav>
 
       <div className="mt-auto pt-4 border-t border-gray-700">

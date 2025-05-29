@@ -9,7 +9,11 @@ import RightSidebar from './components/RightSidebar';
 import CartSidebar from './components/CartSideBar';
 import SignInPage from './components/SignInPage';
 // Import the new getLoggedInUser and its type
-import { getAllProducts, fetchPosts, addToCartApi, getCartApi, getLoggedInUser, type BackendCartResponse, type LoggedInUserResponse, removeFromCartApi } from './components/api';
+import { 
+  getAllProducts, fetchPosts, addToCartApi, getCartApi, getLoggedInUser, type BackendCartResponse, type LoggedInUserResponse, removeFromCartApi,
+  getOrdersApi, type OrderResponse
+ } from './components/api';
+import OrdersSidebar from './components/OrderSidebar';
 
 export interface Product {
   productId?: number;
@@ -33,7 +37,23 @@ export interface PostItem {
   liked?: boolean; // Add this property
 }
 
+// src/App.tsx
 
+// NEW: Interfaces for Order and OrderProduct based on your API response
+export interface OrderProduct {
+  name: string;
+  amount: number;
+  userId: string;
+  productId: number;
+}
+
+export interface Order {
+  orderId: string;
+  userId: string;
+  totalAmount: number;
+  paid: boolean;
+  products: OrderProduct[];
+}
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
@@ -44,6 +64,13 @@ function App() {
     const savedToken = localStorage.getItem('authToken');
     return savedToken;
   });
+
+
+  // NEW STATE: For orders data
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [errorOrders, setErrorOrders] = useState<string | null>(null);
+  const [isOrdersSidebarOpen, setIsOrdersSidebarOpen] = useState(false);
   
 
 // NEW: State for the actual logged-in user's ID
@@ -124,6 +151,51 @@ function App() {
   }, [isAuthenticated, authToken]);
 
   // ==================== API Loading Callbacks (updated to use currentUserId) ====================
+
+  const loadOrders = useCallback(async () => {
+    console.log("App.tsx: loadOrders called.");
+    if (!isAuthenticated || !currentUserId) {
+      console.warn("App.tsx: Not authenticated or user ID not available, skipping order load.");
+      setLoadingOrders(false);
+      return;
+    }
+
+    setLoadingOrders(true);
+    setErrorOrders(null);
+    try {
+      const fetchedOrders: OrderResponse[] = await getOrdersApi();
+      console.log('App.tsx: Fetched orders from API:', fetchedOrders);
+
+      if (!Array.isArray(fetchedOrders)) {
+          console.error("App.tsx: getOrdersApi response is not an array:", fetchedOrders);
+          setErrorOrders("Unexpected API response format for orders.");
+          setOrders([]);
+          return;
+      }
+
+      const formattedOrders: Order[] = fetchedOrders.map((apiOrder: any) => ({
+        orderId: apiOrder.orderId,
+        userId: apiOrder.userId,
+        totalAmount: apiOrder.totalAmount,
+        paid: apiOrder.paid,
+        products: Array.isArray(apiOrder.products) ? apiOrder.products.map((p: any) => ({
+          name: p.name,
+          amount: p.amount,
+          userId: p.userId,
+          productId: p.productId,
+        })) : [],
+      }));
+      setOrders(formattedOrders);
+      console.log('App.tsx: Formatted orders before setting state:', formattedOrders);
+    } catch (error: any) {
+      console.error('App.tsx: Error fetching orders:', error);
+      setErrorOrders(error.message || 'Failed to fetch orders.');
+      setOrders([]);
+    } finally {
+      setLoadingOrders(false);
+      console.log("App.tsx: loadOrders finished. loadingOrders set to false.");
+    }
+  }, [isAuthenticated, currentUserId]);
 
   const loadAvailableProducts = useCallback(async () => {
     console.log("App.tsx: loadAvailableProducts called.");
@@ -377,6 +449,10 @@ function App() {
           console.log("App.tsx: Calling loadCartItems (after products)...");
           await loadCartItems(); // AWAIT ensures it completes
 
+          // NEW Step 5: Load Orders (AFTER Cart Items)
+          console.log("App.tsx: Calling loadOrders (after cart items)...");
+          await loadOrders();
+
           console.log("App.tsx: All initial data loading sequence completed.");
       };
 
@@ -544,6 +620,7 @@ const addToCart = async (product: Product) => {
           setActiveTab={setActiveTab}
           cartItemCount={cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0)}
           onCartIconClick={() => setIsCartSidebarOpen(true)}
+          onOrdersIconClick={() => setIsOrdersSidebarOpen(true)}
         />
 
         <main
@@ -602,6 +679,7 @@ const addToCart = async (product: Product) => {
           setActiveTab={setActiveTab}
           cartItemCount={cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0)}
           onCartIconClick={() => setIsCartSidebarOpen(true)}
+          onOrdersIconClick={() => setIsOrdersSidebarOpen(true)}
         />
 
         <CartSidebar
@@ -613,6 +691,15 @@ const addToCart = async (product: Product) => {
             setActiveTab('Cart');
             setIsCartSidebarOpen(false);
           }}
+        />
+
+        {/* NEW: Orders Sidebar */}
+        <OrdersSidebar
+          isOpen={isOrdersSidebarOpen}
+          onClose={() => setIsOrdersSidebarOpen(false)}
+          orders={orders}
+          loading={loadingOrders}
+          error={errorOrders}
         />
       </>
     );

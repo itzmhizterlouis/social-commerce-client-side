@@ -1,12 +1,13 @@
 // src/components/MobileBottomNav.tsx
 import React from 'react';
-import { HomeIcon, UserGroupIcon, ShoppingBagIcon, PlusCircleIcon, ShoppingCartIcon, Cog6ToothIcon } from '@heroicons/react/24/outline'; // Import ShoppingCartIcon and Cog6ToothIcon
+import { HomeIcon, UserGroupIcon, ShoppingBagIcon, PlusCircleIcon, ShoppingCartIcon, Cog6ToothIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline'; // Import ShoppingCartIcon and Cog6ToothIcon
 
 interface MobileBottomNavProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
   cartItemCount: number; // Add cartItemCount prop
   onCartIconClick: () => void; // Add onCartIconClick prop
+  onOrdersIconClick: () => void;
 }
 
 interface MobileNavItemProps {
@@ -33,7 +34,7 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ icon: Icon, text, active,
   </div>
 );
 
-const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeTab, setActiveTab, cartItemCount, onCartIconClick }) => {
+const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeTab, setActiveTab, cartItemCount, onCartIconClick, onOrdersIconClick }) => {
   return (
     // This navigation bar is fixed at the bottom and only visible on screens smaller than `md`
     <div className="fixed bottom-0 left-0 w-full bg-gray-900 border-t border-gray-700 flex justify-around py-2 z-50 md:hidden">
@@ -68,6 +69,12 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeTab, setActiveT
         active={activeTab === 'Cart'} // Make it active if cart page is open
         onClick={onCartIconClick} // Trigger sidebar open
         badgeContent={cartItemCount} // Pass cart count to badge
+      />
+      <MobileNavItem
+        icon={ClipboardDocumentListIcon} // Use the imported icon
+        text="Orders"
+        active={activeTab === 'Orders'} // Set active if 'Orders' tab is selected
+        onClick={onOrdersIconClick} // This triggers the orders sidebar
       />
       {/* Settings for Mobile is often here instead of a separate menu */}
       <MobileNavItem

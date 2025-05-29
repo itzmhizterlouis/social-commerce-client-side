@@ -252,6 +252,32 @@ async function authFetch(url: string, options: RequestInit = {}) {
     return response.json();
 }
 
+export interface OrderProductResponse {
+  name: string;
+  amount: number;
+  userId: string;
+  productId: number;
+}
+
+export interface OrderResponse {
+  orderId: string;
+  userId: string;
+  totalAmount: number;
+  paid: boolean;
+  products: OrderProductResponse[];
+}
+
+export const getOrdersApi = async (): Promise<OrderResponse[]> => {
+
+  const response = await authenticatedFetch(`${API_BASE_URL}/orders`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  return response;
+};
+
 // NOTE: No DELETE /carts/{productId} or PUT /carts/{productId} (for quantity update)
 // were provided in the image. If these exist, we would implement them here.
 // For now, quantity manipulation on the frontend will be local only for demonstration.
