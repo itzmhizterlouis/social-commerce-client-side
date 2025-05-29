@@ -9,7 +9,7 @@ import RightSidebar from './components/RightSidebar';
 import CartSidebar from './components/CartSideBar';
 import SignInPage from './components/SignInPage';
 // Import the new getLoggedInUser and its type
-import { getAllProducts, fetchPosts, addToCartApi, getCartApi, getLoggedInUser, type BackendCartResponse, type LoggedInUserResponse } from './components/api';
+import { getAllProducts, fetchPosts, addToCartApi, getCartApi, getLoggedInUser, type BackendCartResponse, type LoggedInUserResponse, removeFromCartApi } from './components/api';
 
 export interface Product {
   productId?: number;
@@ -32,6 +32,8 @@ export interface PostItem {
   likes?: number;
   liked?: boolean; // Add this property
 }
+
+
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
@@ -239,7 +241,7 @@ function App() {
           avatarUrl: apiPost.avatarUrl || 'https://i.pravatar.cc/150?img=' + (Number(apiPost.postId || index) % 20),
           videoUrl: apiPost.contentUrl,
           caption: apiPost.caption || '',
-          timeAgo: apiPost.timeAgo || 'Just now',
+          timeAgo: new Date(apiPost.createdAt).toLocaleString() || 'Just now',
           products: Array.isArray(apiPost.products) ? apiPost.products.map((p: any) => ({
             productId: Number(p.productId || p.id),
             userId: p.userId || currentUserId, // Use actual currentUserId as fallback for product userId
@@ -355,26 +357,31 @@ function App() {
   }, [isAuthenticated, authToken, currentUserId, fetchAndSetUserId]);
 
   useEffect(() => {
-    // These now depend on `currentUserId` being set
-    if (isAuthenticated && currentUserId) {
-      console.log("App.tsx: Initial useEffect for loadAvailableProducts triggered (user ID available).");
-      loadAvailableProducts();
-    }
-  }, [loadAvailableProducts, isAuthenticated, currentUserId]);
+      const loadAllInitialData = async () => {
+          // ... (Authentication and currentUserId logic remains the same)
 
-  useEffect(() => {
-    if (isAuthenticated && currentUserId) {
-      console.log("App.tsx: Initial useEffect for loadPosts triggered (user ID available).");
-      loadPosts();
-    }
-  }, [loadPosts, isAuthenticated, currentUserId]);
+          if (!currentUserId) { // Important check after potential fetchAndSetUserId
+              console.warn("App.tsx: currentUserId is still null after initial checks. Cannot load data.");
+              return;
+          }
 
-  useEffect(() => {
-    if (isAuthenticated && currentUserId) {
-      console.log("App.tsx: Initial useEffect for loadCartItems triggered (user ID available).");
-      loadCartItems();
-    }
-  }, [loadCartItems, isAuthenticated, currentUserId]);
+          // Step 2: Load Posts (FIRST)
+          console.log("App.tsx: Calling loadPosts...");
+          await loadPosts(); // AWAIT ensures it completes before the next line
+
+          // Step 3: Load Products (AFTER Posts)
+          console.log("App.tsx: Calling loadAvailableProducts (after posts)...");
+          await loadAvailableProducts(); // AWAIT ensures it completes
+
+          // Step 4: Load Cart Items (AFTER Products)
+          console.log("App.tsx: Calling loadCartItems (after products)...");
+          await loadCartItems(); // AWAIT ensures it completes
+
+          console.log("App.tsx: All initial data loading sequence completed.");
+      };
+
+      loadAllInitialData();
+  }, [isAuthenticated, authToken, currentUserId, fetchAndSetUserId, loadPosts, loadAvailableProducts, loadCartItems]);
 
 
   // ==================== Handlers for User Actions (updated to use currentUserId) ====================
@@ -425,18 +432,7 @@ const addToCart = async (product: Product) => {
         } else if (newQuantity < oldQuantity) {
             // User clicked minus button (or quantity decreased)
             console.log(`App.tsx: Decrementing quantity for productId: ${productId}`);
-            // IMPORTANT: Since you don't have a remove (decrement) API yet,
-            // this branch currently won't do anything on the backend.
-            // You will need a specific API call here to remove one instance
-            // of the product, e.g., await decrementProductQuantityApi(productId);
-            // For now, it's left empty as per your request.
-            console.warn("App.tsx: Decrement functionality not implemented on backend yet. Skipping API call for minus button.");
-            // Example if you had a removeOneFromCartApi:
-            // if (newQuantity === 0) {
-            //   await removeProductFromCartApi(productId); // Remove all if quantity goes to 0
-            // } else {
-            //   await removeOneFromCartApi(productId); // Remove just one
-            // }
+            await removeFromCartApi(productId);
         }
         // else if (newQuantity === oldQuantity), do nothing.
 
