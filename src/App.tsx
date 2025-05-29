@@ -11,7 +11,8 @@ import SignInPage from './components/SignInPage';
 // Import the new getLoggedInUser and its type
 import { 
   getAllProducts, fetchPosts, addToCartApi, getCartApi, getLoggedInUser, type BackendCartResponse, type LoggedInUserResponse, removeFromCartApi,
-  getOrdersApi, type OrderResponse
+  getOrdersApi, type OrderResponse,
+  initiateCheckout
  } from './components/api';
 import OrdersSidebar from './components/OrderSidebar';
 
@@ -71,6 +72,8 @@ function App() {
   const [loadingOrders, setLoadingOrders] = useState(true);
   const [errorOrders, setErrorOrders] = useState<string | null>(null);
   const [isOrdersSidebarOpen, setIsOrdersSidebarOpen] = useState(false);
+
+  const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
   
 
 // NEW: State for the actual logged-in user's ID
@@ -664,7 +667,23 @@ const addToCart = async (product: Product) => {
               error={errorCart}
               updateCartItemQuantity={updateCartItemQuantity}
               removeCartItem={removeCartItem}
-              onCheckout={() => alert('Proceeding to checkout!')}
+              onCheckout={async () => {
+                setIsCheckoutLoading(true); // Start loading
+                try {
+                  const response = await initiateCheckout();
+                  if (response.status === "INTERNAL_SERVER_ERROR") {
+                    alert(`Unable to initiate checkout due to ${response.message}`);
+                  } else {
+                    window.location.href = response.checkout_url;
+                  }
+                } catch (error: any) {
+                  console.error("Checkout initiation failed:", error);
+                  alert(`Failed to initiate checkout: ${error.message || 'An unexpected error occurred.'}`);
+                } finally {
+                  setIsCheckoutLoading(false); // End loading regardless of success or failure
+                }
+              }}
+              isCheckoutLoading={isCheckoutLoading} // NEW: Pass the loading state to CartPage
             />
           )}
           {activeTab === 'Settings' && (

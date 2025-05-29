@@ -278,6 +278,23 @@ export const getOrdersApi = async (): Promise<OrderResponse[]> => {
   return response;
 };
 
+export interface InitiateCheckoutResponse {
+  status: string,
+  checkout_url: string
+  message?: string
+}
+
+export const initiateCheckout = async (): Promise<InitiateCheckoutResponse> => {
+
+  const response = await authenticatedFetch(`${API_BASE_URL}/carts/initiate-checkout`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  return response;
+};
+
 // NOTE: No DELETE /carts/{productId} or PUT /carts/{productId} (for quantity update)
 // were provided in the image. If these exist, we would implement them here.
 // For now, quantity manipulation on the frontend will be local only for demonstration.
