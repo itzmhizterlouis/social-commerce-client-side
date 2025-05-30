@@ -11,10 +11,19 @@ import SignInPage from './components/SignInPage';
 // Import the new getLoggedInUser and its type
 import { 
   getAllProducts, fetchPosts, addToCartApi, getCartApi, getLoggedInUser, type BackendCartResponse, type LoggedInUserResponse, removeFromCartApi,
-  getOrdersApi, type OrderResponse,
-  initiateCheckout
+  getOrdersApi, type OrderResponse, initiateCheckout, searchApi
  } from './components/api';
 import OrdersSidebar from './components/OrderSidebar';
+
+export interface SearchResultItem {
+  type: 'post' | 'product'; // Assuming the backend returns a 'type' field
+  id: string; // The ID of the post or product
+  title: string; // Name of product or caption of post
+  imageUrl?: string; // Image for product or video thumbnail for post
+  // Add other relevant fields if the backend provides them
+  // e.g., for products: amount, userId
+  // e.g., for posts: username, avatarUrl, likes, etc.
+}
 
 export interface Product {
   productId?: number;
@@ -74,6 +83,10 @@ function App() {
   const [isOrdersSidebarOpen, setIsOrdersSidebarOpen] = useState(false);
 
   const [isCheckoutLoading, setIsCheckoutLoading] = useState(false);
+
+  const [searchResults, setSearchResults] = useState<PostItem[]>([]);
+  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [errorSearch, setErrorSearch] = useState<string | null>(null);
   
 
 // NEW: State for the actual logged-in user's ID
@@ -340,6 +353,66 @@ function App() {
     }
   }, [isAuthenticated, currentUserId]); // Dependency on currentUserId
 
+  const performSearch = useCallback(async (query: string) => {
+    if (!query.trim()) { // If query is empty or just whitespace
+      setSearchResults([]); // Clear previous results
+      setErrorSearch(null);
+      setLoadingSearch(false);
+      return; // Do nothing if search term is empty
+    }
+
+    setLoadingSearch(true);
+    setErrorSearch(null);
+    try {
+      console.log(`App.tsx: Calling searchApi with query: "${query}"`);
+      const results = await searchApi(query, 10, 0);
+      console.log('App.tsx: Search results from API:', results);
+
+      if (!Array.isArray(results)) {
+        console.error("App.tsx: searchApi response is not an array:", results);
+        setErrorSearch("Unexpected API response format for search results.");
+        setSearchResults([]);
+        return;
+      }
+
+      const formattedResults: PostItem[] = results.map((apiPost: any, index: number) => {
+        if (apiPost === null || typeof apiPost !== 'object') {
+            console.warn(`App.tsx: Search result at index ${index} is null or not an object during mapping:`, apiPost);
+            return null;
+        }
+        // ... (other checks) ...
+
+        return {
+          id: apiPost.postId?.toString() || `search-temp-${Date.now()}-${index}`,
+          username: apiPost.fullName || 'Unknown User',
+          avatarUrl: apiPost.avatarUrl || 'https://i.pravatar.cc/150?img=' + (Number(apiPost.postId || index) % 20),
+          videoUrl: apiPost.contentUrl,
+          caption: apiPost.caption || '', // <--- ENSURE THIS LINE IS CORRECT
+          timeAgo: new Date(apiPost.createdAt).toLocaleString() || 'Just now',
+          products: Array.isArray(apiPost.products) ? apiPost.products.map((p: any) => ({
+            productId: Number(p.productId || p.id),
+            userId: p.userId || currentUserId,
+            name: p.name || 'Unknown Product',
+            amount: p.amount || 0,
+            imageUrl: p.imageUrl || 'https://via.placeholder.com/48x48?text=No+Image',
+          })) : [],
+          likes: apiPost.likes || 0,
+          liked: apiPost.liked
+        };
+      }).filter(Boolean) as PostItem[];
+
+      setSearchResults(formattedResults);
+      console.log('App.tsx: Formatted search results:', formattedResults); // Add this log
+    } catch (error: any) {
+      console.error('App.tsx: Error during search:', error);
+      setErrorSearch(error.message || 'Failed to perform search.');
+      setSearchResults([]);
+    } finally {
+      setLoadingSearch(false);
+      console.log("App.tsx: performSearch finished. loadingSearch set to false.");
+    }
+  }, [currentUserId]);
+
   const loadCartItems = useCallback(async () => {
     console.log("App.tsx: loadCartItems called.");
     if (!isAuthenticated || !currentUserId) {
@@ -462,6 +535,19 @@ function App() {
       loadAllInitialData();
   }, [isAuthenticated, authToken, currentUserId, fetchAndSetUserId, loadPosts, loadAvailableProducts, loadCartItems]);
 
+  useEffect(() => {
+    // This useEffect will no longer automatically trigger search on debounce.
+    // It will only clear search results if the search term becomes empty.
+    if (!searchTerm.trim() && searchResults.length > 0) {
+      console.log("App.tsx: Search term cleared, clearing search results.");
+      setSearchResults([]);
+      setErrorSearch(null);
+      setLoadingSearch(false);
+    }
+    // No `return () => clearTimeout(delaySearch);` needed anymore as there's no `setTimeout` to clear.
+    // No `performSearch(searchTerm);` call here anymore.
+  }, [searchTerm, searchResults.length]); // Dependencies: only searchTerm and searchResults.length
+
 
   // ==================== Handlers for User Actions (updated to use currentUserId) ====================
 
@@ -528,6 +614,12 @@ const addToCart = async (product: Product) => {
     }
   };
 
+  const handleSearchSubmit = useCallback(() => {
+    // This function will be called when the Enter key is pressed in the search bar.
+    console.log(`App.tsx: handleSearchSubmit called for term: "${searchTerm}"`);
+    performSearch(searchTerm); // Trigger the search with the current term
+  }, [searchTerm, performSearch]); // Dependencies: searchTerm (to get current value) and performSearch (the actual search logic)
+
   const removeCartItem = (productId: number) => {
     setCartItems((prevItems) => prevItems.filter((item) => item.productId !== productId));
     // Call backend API here if available, then loadCartItems()
@@ -555,6 +647,7 @@ const addToCart = async (product: Product) => {
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
     console.log('App.tsx: Search term:', event.target.value);
+    handleSearchSubmit()
   };
 
   const handleAuthenticationSuccess = useCallback(async (token: string) => {
@@ -630,12 +723,21 @@ const addToCart = async (product: Product) => {
           className="flex-grow border-x border-gray-700 mx-auto w-full max-w-[600px] lg:max-w-[700px] xl:max-w-[800px] pt-4 pb-16 md:pb-4"
         >
           {activeTab === 'Home' && (
-            <HomePage
-              posts={posts}
-              loading={loadingPosts}
-              error={errorPosts}
-              addToCart={addToCart}
-            />
+            searchTerm.trim() ? ( // If there's a search term, display search results using HomePage
+              <HomePage
+                posts={searchResults} // Pass search results here
+                loading={loadingSearch} // Use search loading state
+                error={errorSearch} // Use search error state
+                addToCart={addToCart}
+              />
+            ) : ( // Otherwise, show the regular Home page with posts
+              <HomePage
+                posts={posts} // Pass regular posts here
+                loading={loadingPosts} // Use regular posts loading state
+                error={errorPosts} // Use regular posts error state
+                addToCart={addToCart}
+              />
+            )
           )}
           {activeTab === 'Following' && (
             <div className="p-4 text-center text-gray-400">Following Feed Coming Soon!</div>
@@ -691,7 +793,11 @@ const addToCart = async (product: Product) => {
           )}
         </main>
 
-        <RightSidebar searchTerm={searchTerm} onSearchChange={handleSearchChange} />
+        <RightSidebar
+          searchTerm={searchTerm}
+          onSearchChange={handleSearchChange}
+          onSearchSubmit={handleSearchSubmit} // <-- ADD THIS PROP
+        />
 
         <MobileBottomNav
           activeTab={activeTab}

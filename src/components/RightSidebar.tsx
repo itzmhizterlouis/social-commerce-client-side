@@ -5,9 +5,10 @@ import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 interface RightSidebarProps {
   searchTerm: string;
   onSearchChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearchSubmit: () => void;
 }
 
-const RightSidebar: React.FC<RightSidebarProps> = ({ searchTerm, onSearchChange }) => {
+const RightSidebar: React.FC<RightSidebarProps> = ({ searchTerm, onSearchChange, onSearchSubmit }) => {
   return (
     <div className="hidden lg:flex flex-col flex-grow border-l border-gray-700 p-4 sticky top-0 h-screen overflow-y-auto">
       {/* Search Bar */}
@@ -17,6 +18,12 @@ const RightSidebar: React.FC<RightSidebarProps> = ({ searchTerm, onSearchChange 
           placeholder="Search SocialShop..."
           value={searchTerm}
           onChange={onSearchChange}
+          onKeyDown={(e) => { // <-- ADD THIS HANDLER
+            if (e.key === 'Enter') {
+              e.preventDefault(); // Prevent default form submission behavior (if it was a form)
+              onSearchSubmit(); // Call the function passed from App.tsx
+            }
+          }}
           className="w-full pl-10 pr-4 py-2 rounded-full bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
         />
         <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />

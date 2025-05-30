@@ -1,6 +1,6 @@
 // src/api.ts
 
-import type { Product } from "../App";
+import type { PostItem, Product } from "../App";
 
 const API_BASE_URL = 'https://social-commerce-be-production.up.railway.app'; // Your backend base URL
 
@@ -141,7 +141,7 @@ interface GetPostsResponseProduct {
   imageUrl?: string;
 }
 
-interface GetPostsResponseItem {
+export interface GetPostsResponseItem {
   postId: number;
   contentUrl: string;
   caption: string;
@@ -294,6 +294,20 @@ export const initiateCheckout = async (): Promise<InitiateCheckoutResponse> => {
   });
   return response;
 };
+
+export async function searchApi(query: string, pageSize: Number, pageNumber: Number): Promise<PostItem[]> { // Change return type to any[] for now, will map to PostItem later
+  const url = new URL(`${API_BASE_URL}/posts/search`);
+  url.searchParams.append('pageSize', pageSize.toString());
+  url.searchParams.append('pageNumber', pageNumber.toString());
+  url.searchParams.append('tag', query)
+  const response = await authenticatedFetch(url.toString(), {
+    method: 'GET',
+  });
+
+  console.log("Search api response is ", response);
+  
+  return response;
+}
 
 // NOTE: No DELETE /carts/{productId} or PUT /carts/{productId} (for quantity update)
 // were provided in the image. If these exist, we would implement them here.
