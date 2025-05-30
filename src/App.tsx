@@ -11,9 +11,12 @@ import SignInPage from './components/SignInPage';
 // Import the new getLoggedInUser and its type
 import { 
   getAllProducts, fetchPosts, addToCartApi, getCartApi, getLoggedInUser, type BackendCartResponse, type LoggedInUserResponse, removeFromCartApi,
-  getOrdersApi, type OrderResponse, initiateCheckout, searchApi
+  getOrdersApi, type OrderResponse, initiateCheckout, searchApi,
+  updateUserApi,
+  type UpdateUserPayload
  } from './components/api';
 import OrdersSidebar from './components/OrderSidebar';
+import ActivateUserPage from './components/ActivateUserPage';
 
 export interface SearchResultItem {
   type: 'post' | 'product'; // Assuming the backend returns a 'type' field
@@ -87,6 +90,8 @@ function App() {
   const [searchResults, setSearchResults] = useState<PostItem[]>([]);
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [errorSearch, setErrorSearch] = useState<string | null>(null);
+
+  const [showProfileUpdatePage, setShowProfileUpdatePage] = useState(false);
   
 
 // NEW: State for the actual logged-in user's ID
@@ -149,6 +154,13 @@ function App() {
       if (user && user.userId) {
         setCurrentUserId(user.userId);
         localStorage.setItem('currentUserId', user.userId); // You could optionally store this in localStorage
+        if (user.activated === false) { // If user is not activated
+          console.log("App.tsx: User account is NOT activated. Displaying profile update page.");
+          setShowProfileUpdatePage(true);
+          return;
+        }
+
+        setShowProfileUpdatePage(false);
       } else {
         console.error("App.tsx: Logged-in user response is missing ID:", user);
         setCurrentUserId(null);
@@ -165,6 +177,26 @@ function App() {
       setAuthToken(null);
     }
   }, [isAuthenticated, authToken]);
+
+  const handleUserActivation = useCallback(async (payload: UpdateUserPayload) => {
+    if (!currentUserId) {
+      alert('User ID not available for update.');
+      return;
+    }
+    try {
+      console.log("App.tsx: Calling updateUserApi for profile update with payload:", payload);
+      await updateUserApi(payload);
+      console.log("App.tsx: User profile updated successfully. Re-fetching user status...");
+      alert('Profile updated successfully! Redirecting to Home page.');
+      setShowProfileUpdatePage(false); // <--- HIDE THE STANDALONE PAGE
+      // After successful update, re-fetch user status.
+      // fetchAndSetUserId will check 'activated' (which should now be true) and load main data.
+      await fetchAndSetUserId();
+    } catch (error: any) {
+      console.error('App.tsx: Error updating user profile:', error);
+      alert(`Failed to update profile: ${error.message || 'An unexpected error occurred. Please try again.'}`);
+    }
+  }, [currentUserId, fetchAndSetUserId, setShowProfileUpdatePage]); // <--- ADDED: setShowProfileUpdatePage to dependencies
 
   // ==================== API Loading Callbacks (updated to use currentUserId) ====================
 
@@ -693,6 +725,18 @@ const addToCart = async (product: Product) => {
         );
       }
       return <SignInPage backendGoogleAuthUrl="https://social-commerce-be-production.up.railway.app/signin" />;
+    }
+
+    if (showProfileUpdatePage && currentUserId) { // currentUserId must be available for the form
+      return (
+        <ActivateUserPage
+          onActivateSuccess={() => { /* handleUserActivation handles the re-fetch */ }}
+          updateUser={handleUserActivation}
+          // Assuming loading/error states are managed within ActivateUserPage or by alerts
+          loading={false}
+          error={null}
+        />
+      );
     }
 
     // Only render main content if user is authenticated AND currentUserId is available

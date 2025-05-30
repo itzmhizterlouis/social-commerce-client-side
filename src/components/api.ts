@@ -224,9 +224,20 @@ export async function likePost(postId: number) {
 
 export interface LoggedInUserResponse {
     userId: string; // Assuming the user ID is a string, adjust if it's a number
-    username: string;
+    firstName: string;
+    lastName: string;
     email: string;
+    activated: boolean;
+    phoneNumber: string;
+    address: any[]
     // Add any other user properties returned by your API
+}
+
+export interface UpdateUserPayload {
+  phoneNumber: string;
+  streetAddress: string;
+  state: string;
+  country: string;
 }
 
 export const getLoggedInUser = async (): Promise<LoggedInUserResponse> => {
@@ -307,6 +318,19 @@ export async function searchApi(query: string, pageSize: Number, pageNumber: Num
   console.log("Search api response is ", response);
   
   return response;
+}
+
+export async function updateUserApi(payload: UpdateUserPayload): Promise<LoggedInUserResponse> {
+  const response = await authenticatedFetch(`${API_BASE_URL}/users/profile`, { // Adjust URL if different
+    method: 'PUT', // Or 'PATCH' depending on your backend
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+  console.log("Called update user profile api");
+
+  return response; // Assuming it returns the updated user object
 }
 
 // NOTE: No DELETE /carts/{productId} or PUT /carts/{productId} (for quantity update)
