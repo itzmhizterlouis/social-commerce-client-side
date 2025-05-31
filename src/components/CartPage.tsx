@@ -64,7 +64,7 @@ const CartPage: React.FC<CartPageProps> = ({
                 <img src={item.imageUrl} alt={item.name} className="w-20 h-20 object-cover rounded-md mr-4" />
                 <div className="flex-grow">
                   <h3 className="text-lg font-semibold text-white">{item.name}</h3>
-                  <p className="text-indigo-400">${item.amount.toFixed(2)}</p>
+                  <p className="text-green-500">${item.amount.toFixed(2)}</p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button
@@ -100,7 +100,7 @@ const CartPage: React.FC<CartPageProps> = ({
             <div className="flex justify-between items-center mb-4">
               <span className="text-xl font-semibold text-white">Total:</span>
               {/* Use cartTotalAmount from backend */}
-              <span className="text-2xl font-bold text-indigo-400">${cartTotalAmount.toFixed(2)}</span>
+              <span className="text-2xl font-bold text-green-500">${cartTotalAmount.toFixed(2)}</span>
             </div>
 
             <button

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { PostItem, Product } from '../App';
 import { uploadPost, uploadProductsJson } from './api';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 interface CreatePostPageProps {
   availableProducts: Product[];
@@ -34,6 +35,12 @@ const CreatePostPage: React.FC<CreatePostPageProps> = ({
   const [newProductImagePreviewUrl, setNewProductImagePreviewUrl] = useState<string | null>(null);
 
   const [isLoading, setIsLoading] = useState(false); // For form submission and product creation
+
+  const handleCancelVideo = () => {
+    setVideoFile(null);       // Clear the actual video file
+    setVideoPreviewUrl(null); // Clear the URL for the preview
+    console.log("Video selection cleared.");
+  };
 
   useEffect(() => {
     console.log("CreatePostPage: Props received for product selection:");
@@ -245,8 +252,16 @@ const CreatePostPage: React.FC<CreatePostPageProps> = ({
             required
           />
           {videoPreviewUrl && (
-            <div className="mt-4">
+            <div className="mt-4 relative"> {/* ADDED: relative positioning */}
               <video controls src={videoPreviewUrl} className="w-full h-auto max-h-64 rounded-md object-contain border border-gray-700"></video>
+              {/* NEW: Cancel Button for Video */}
+              <button
+                onClick={handleCancelVideo}
+                className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 shadow-md hover:bg-red-700 transition-colors duration-200"
+                aria-label="Remove video"
+              >
+                <XMarkIcon className="h-5 w-5" />
+              </button>
             </div>
           )}
         </div>

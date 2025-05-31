@@ -39,7 +39,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, cartItems, r
                 <img src={item.imageUrl} alt={item.name} className="w-16 h-16 object-cover rounded-md mr-3" />
                 <div className="flex-grow">
                   <h3 className="text-md font-semibold text-white line-clamp-2">{item.name}</h3>
-                  <p className="text-indigo-400 text-sm">${item.amount.toFixed(2)} x {item.quantity || 1}</p>
+                  <p className="text-green-500 text-sm">${item.amount.toFixed(2)} x {item.quantity || 1}</p>
                 </div>
                 <button
                   onClick={() => removeCartItem(item.productId!)}
@@ -58,7 +58,7 @@ const CartSidebar: React.FC<CartSidebarProps> = ({ isOpen, onClose, cartItems, r
       <div className="absolute bottom-0 left-0 w-full bg-gray-900 p-4 border-t border-gray-700">
         <div className="flex justify-between items-center mb-4">
           <span className="text-lg font-semibold text-white">Subtotal:</span>
-          <span className="text-xl font-bold text-indigo-400">${calculateTotal().toFixed(2)}</span>
+          <span className="text-xl font-bold text-green-500">${calculateTotal().toFixed(2)}</span>
         </div>
         <button
           onClick={() => {

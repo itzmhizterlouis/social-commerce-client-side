@@ -20,11 +20,11 @@ interface NavItemProps {
 
 const NavItem: React.FC<NavItemProps> = ({ icon: Icon, text, active, onClick, badgeContent }) => (
   <div
-    className={`relative flex items-center space-x-4 p-3 rounded-lg cursor-pointer transition-colors duration-200
+    className={`relative flex items-center space-x-4 p-2 rounded-lg cursor-pointer transition-colors duration-200
       ${active ? 'bg-gray-800 text-white font-semibold' : 'text-white hover:bg-gray-800'}`}
     onClick={onClick}
   >
-    <Icon className="h-6 w-6 flex-shrink-0" /> {/* Added flex-shrink-0 */}
+    <Icon className="h-3.5 w-3.5 flex-shrink-0" /> {/* Added flex-shrink-0 */}
     {/* MODIFIED: Reduced text size from text-lg to text-base */}
     <span className="hidden lg:inline-block text-base flex-grow min-w-0">{text}</span> {/* Show text on large screens */}
     {badgeContent && badgeContent > 0 && (
@@ -39,8 +39,8 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, cartItemCoun
   return (
     <div className="hidden md:flex flex-col w-16 lg:w-64 border-r border-gray-700 p-4 sticky top-0 h-screen overflow-y-auto">
       {/* Logo/App Name */}
-      <div className="mb-8 mt-2 text-2xl font-bold text-indigo-400 hidden lg:block">
-        SocialShop
+      <div className="mb-8 mt-2 text-2xl font-bold text-green-400 hidden lg:block">
+        SC
       </div>
       <div className="mb-8 mt-2 text-2xl font-bold text-indigo-400 block lg:hidden">
         SS
