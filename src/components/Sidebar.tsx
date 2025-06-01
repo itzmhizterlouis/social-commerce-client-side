@@ -40,7 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, cartItemCoun
     <div className="hidden md:flex flex-col w-16 lg:w-64 border-r border-gray-700 p-4 sticky top-0 h-screen overflow-y-auto">
       {/* Logo/App Name */}
       <div className="mb-8 mt-2 text-2xl font-bold text-green-400 hidden lg:block">
-        SC
+        SCX
       </div>
       <div className="mb-8 mt-2 text-2xl font-bold text-indigo-400 block lg:hidden">
         SS
