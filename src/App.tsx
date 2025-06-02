@@ -766,7 +766,7 @@ const addToCart = async (product: Product) => {
         />
 
         <main
-          className="flex-grow border-x border-gray-700 mx-auto w-full max-w-[600px] lg:max-w-[700px] xl:max-w-[800px] pt-4 pb-16 md:pb-4"
+          className="flex-grow border-x border-gray-700 mx-auto w-full pt-4 pb-16 md:pb-4 max-w-[80vw] lg:max-w-[80vw] xl:max-w-[80vw]"
         >
           {activeTab === 'Home' && (
             searchTerm.trim() ? ( // If there's a search term, display search results using HomePage
