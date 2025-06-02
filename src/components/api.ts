@@ -333,6 +333,19 @@ export async function updateUserApi(payload: UpdateUserPayload): Promise<LoggedI
   return response; // Assuming it returns the updated user object
 }
 
+export async function fetchOrderById (orderId: string): Promise<OrderResponse> {
+
+  const response = await authenticatedFetch(`${API_BASE_URL}/orders/${orderId}`, { // Adjust URL if different
+    method: 'GET', // Or 'PATCH' depending on your backend
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  console.log("Called update user profile api");
+
+  return response;
+}
+
 // NOTE: No DELETE /carts/{productId} or PUT /carts/{productId} (for quantity update)
 // were provided in the image. If these exist, we would implement them here.
 // For now, quantity manipulation on the frontend will be local only for demonstration.

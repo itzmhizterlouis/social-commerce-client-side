@@ -17,6 +17,8 @@ import {
  } from './components/api';
 import OrdersSidebar from './components/OrderSidebar';
 import ActivateUserPage from './components/ActivateUserPage';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import OrderConfirmationPage from './components/OrderConfirmationPage';
 
 export interface SearchResultItem {
   type: 'post' | 'product'; // Assuming the backend returns a 'type' field
@@ -875,9 +877,17 @@ const addToCart = async (product: Product) => {
   };
 
   return (
-    <div className="flex bg-black min-h-screen min-w-screen text-white font-inter">
-      {renderContent()}
-    </div>
+    // You need BrowserRouter here if it's not in index.js
+    <BrowserRouter> {/* <--- ADD THIS */}
+      <div className="flex bg-black min-h-screen min-w-screen text-white font-inter">
+        <Routes>
+          <Route path="/" element={renderContent()} />
+          <Route path="/auth/callback" element={renderContent()} />
+          <Route path="/payments/order/confirm/" element={<OrderConfirmationPage />}
+          />
+        </Routes>
+      </div>
+    </BrowserRouter>
   );
 }
 
