@@ -15,7 +15,7 @@ const SignInPage: React.FC<SignInPageProps> = ({ backendGoogleAuthUrl }) => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4">
-      <h1 className="text-4xl font-bold mb-8">Welcome to VidCommerce</h1>
+      <h1 className="text-4xl font-bold mb-8">Welcome to SCX</h1>
       <p className="text-lg text-gray-400 mb-10">Sign in to discover, create, and shop from engaging video content.</p>
 
       <div className="bg-gray-800 p-8 rounded-lg shadow-xl border border-gray-700">
@@ -44,7 +44,7 @@ const SignInPage: React.FC<SignInPageProps> = ({ backendGoogleAuthUrl }) => {
         </p>
       </div>
 
-      <p className="absolute bottom-4 text-gray-600">© 2025 VidCommerce. All rights reserved.</p>
+      <p className="absolute bottom-4 text-gray-600">© 2025 SCX. All rights reserved.</p>
     </div>
   );
 };
