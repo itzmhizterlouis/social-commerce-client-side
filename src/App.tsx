@@ -333,7 +333,7 @@ function App() {
     setLoadingPosts(true);
     setErrorPosts(null);
     try {
-      const fetchedApiPosts = await fetchPosts(10, 0);
+      const fetchedApiPosts = await fetchPosts(20, 0);
       console.log('App.tsx: Fetched posts from API:', fetchedApiPosts);
 
       if (!Array.isArray(fetchedApiPosts)) {
