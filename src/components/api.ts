@@ -349,6 +349,20 @@ export async function fetchOrderById (orderId: string): Promise<OrderResponse> {
   return response;
 }
 
+export async function addCommentToPost(postId: number, comment: string): Promise<CommentItem> {
+  const response = await authenticatedFetch(
+    `${API_BASE_URL}/posts/comment/${postId}`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ comment: comment }),
+    }
+  );
+  return response; // Should return the new comment object
+}
+
 // NOTE: No DELETE /carts/{productId} or PUT /carts/{productId} (for quantity update)
 // were provided in the image. If these exist, we would implement them here.
 // For now, quantity manipulation on the frontend will be local only for demonstration.

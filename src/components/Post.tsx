@@ -1,10 +1,10 @@
 // src/components/Post.tsx
 import React, { useState } from 'react'; // Import useState
-import { HeartIcon, PaperAirplaneIcon, BookmarkIcon, EllipsisHorizontalIcon } from '@heroicons/react/24/outline';
+import { HeartIcon, PaperAirplaneIcon, BookmarkIcon, EllipsisHorizontalIcon, ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconFilled } from '@heroicons/react/24/solid'; // Import solid heart icon for liked state
 import type { CommentItem, PostItem, Product } from '../App';
 import ProductDisplay from './ProductDisplay';
-import { likePost } from './api'
+import { addCommentToPost, likePost } from './api'
 
 interface PostProps {
   post: PostItem;
@@ -23,10 +23,55 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
     const [likeCount, setLikeCount] = useState(post.likes || 0);
 
     const [showAllComments, setShowAllComments] = useState(false);
+    const [commentInput, setCommentInput] = useState('');
+    const [submitting, setSubmitting] = useState(false);
+    const [comments, setComments] = useState<CommentItem[]>(post.comments || []);
+    const [commentSuccess, setCommentSuccess] = useState<string | null>(null);
+    const [commentError, setCommentError] = useState<string | null>(null);
 
     const visibleComments = showAllComments
-      ? post.comments || []
-      : (post.comments || []).slice(0, 2);
+      ? comments
+      : comments.slice(0, 2);
+
+    // Handle comment submit on Enter
+    const handleCommentKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter' && commentInput.trim() && !submitting) {
+        await submitComment();
+      }
+    };
+
+    const handleCommentButtonClick = async () => {
+      if (commentInput.trim() && !submitting) {
+        await submitComment();
+      }
+    };
+
+    const Loader = () => (
+      <svg className="animate-spin h-5 w-5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+      </svg>
+    );
+
+    // Extracted comment submission logic
+    const submitComment = async () => {
+      setSubmitting(true);
+      setCommentError(null);
+      setCommentSuccess(null);
+      try {
+        const newComment = await addCommentToPost(Number(post.id), commentInput.trim());
+        setComments(prev => [...prev, newComment]); // <-- This updates the card with the new comment
+        setCommentInput('');
+        setCommentSuccess('Comment added!');
+        setTimeout(() => setCommentSuccess(null), 2000);
+        if (!showAllComments && comments.length < 2) setShowAllComments(false);
+      } catch (err) {
+        setCommentError('Failed to add comment. Please try again.');
+        setTimeout(() => setCommentError(null), 2000);
+      } finally {
+        setSubmitting(false);
+      }
+    };
 
     const handleLikeClick = async () => {
       // Optimistically update the UI
@@ -114,7 +159,7 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
         {/* Caption */}
         <p className="text-sm px-4 pb-2 text-white">
           <span className="font-semibold mr-1">{post.username}</span>
-          {post.caption}
+          <span className="text-gray-400">{post.caption}</span>
         </p>
 
         {/* Products associated with the post */}
@@ -126,7 +171,7 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
         )}
 
         {/* Comments Section */}
-        {post.comments && post.comments.length > 0 && (
+        {comments.length > 0 && (
           <div className="px-4 pb-2">
             <h4 className="text-xs text-gray-400 mb-1">Comments</h4>
             <ul>
@@ -149,7 +194,7 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
                 </li>
               ))}
             </ul>
-            {post.comments.length > 2 && !showAllComments && (
+            {comments.length > 2 && !showAllComments && (
               <span
                 className="text-xs mt-1 cursor-pointer underline text-gray-400 hover:underline hover:text-white"
                 onClick={() => setShowAllComments(true)}
@@ -157,7 +202,7 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
                 View all comments
               </span>
             )}
-            {showAllComments && post.comments.length > 2 && (
+            {showAllComments && comments.length > 2 && (
               <span
                 className="text-xs mt-1 cursor-pointer underline text-gray-400 hover:underline hover:text-white"
                 onClick={() => setShowAllComments(false)}
@@ -169,13 +214,32 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
         )}
 
         {/* Add a comment section */}
-        <div className="text-gray-400 text-xs px-4 pb-4 border-t border-gray-700 pt-3 mt-4">
-            <input
-              type="text"
-              placeholder="Add a comment..."
-              className="w-full bg-transparent border-none focus:outline-none text-white text-sm placeholder-gray-500"
-            />
+        <div className="text-gray-400 text-xs px-4 pb-4 border-t border-gray-700 pt-3 mt-4 flex items-center gap-2">
+          <input
+            type="text"
+            placeholder="Add a comment..."
+            className="w-full bg-transparent border-none focus:outline-none text-white text-sm placeholder-gray-500"
+            value={commentInput}
+            onChange={e => setCommentInput(e.target.value)}
+            onKeyDown={handleCommentKeyDown}
+            disabled={submitting}
+          />
+          <button
+            onClick={handleCommentButtonClick}
+            disabled={submitting || !commentInput.trim()}
+            className="p-1 rounded-full hover:bg-gray-700 transition disabled:opacity-50"
+            aria-label="Add comment"
+          >
+            {submitting ? <Loader /> : <ChatBubbleLeftEllipsisIcon className="h-6 w-6 text-indigo-400" />}
+          </button>
         </div>
+        {/* Success/Error message */}
+        {commentSuccess && (
+          <div className="px-4 pb-2 text-green-400 text-xs">{commentSuccess}</div>
+        )}
+        {commentError && (
+          <div className="px-4 pb-2 text-red-400 text-xs">{commentError}</div>
+        )}
       </div>
     );
   };
