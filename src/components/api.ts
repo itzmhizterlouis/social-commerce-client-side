@@ -1,6 +1,6 @@
 // src/api.ts
 
-import type { PostItem, Product } from "../App";
+import type { CommentItem, PostItem, Product } from "../App";
 
 const API_BASE_URL = 'https://social-commerce-be-production.up.railway.app'; // Your backend base URL
 
@@ -150,6 +150,8 @@ export interface GetPostsResponseItem {
   likes: number;
   liked: boolean;
   createdAt: string;
+  profileImageUrl: string;
+  comments: CommentItem[];
 }
 
 /**
@@ -230,6 +232,7 @@ export interface LoggedInUserResponse {
     activated: boolean;
     phoneNumber: string;
     address: any[]
+    profileImageUrl: string;
     // Add any other user properties returned by your API
 }
 

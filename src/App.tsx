@@ -30,6 +30,16 @@ export interface SearchResultItem {
   // e.g., for posts: username, avatarUrl, likes, etc.
 }
 
+export interface CommentItem {
+  commentId: number;
+  comment: string;
+  userId: string;
+  createdAt: string;
+  profileImageUrl: string;
+  username: string;
+  updatedAt: string;
+}
+
 export interface Product {
   productId?: number;
   userId: string; // Now this will be the actual user ID
@@ -43,13 +53,14 @@ export interface Product {
 export interface PostItem {
   id: string;
   username: string;
-  avatarUrl: string;
+  profileImageUrl: string;
   videoUrl: string;
   caption: string;
   timeAgo: string;
   products: Product[];
   likes?: number;
-  liked?: boolean; // Add this property
+  liked?: boolean;
+  comments?: CommentItem[];
 }
 
 // src/App.tsx
@@ -359,8 +370,19 @@ function App() {
 
         return {
           id: apiPost.postId?.toString() || `temp-${Date.now()}-${index}`,
+          comments: Array.isArray(apiPost.comments)
+              ? apiPost.comments.map((c: any) => ({
+                  commentId: c.commentId,
+                  comment: c.comment,
+                  userId: c.userId,
+                  createdAt: c.createdAt,
+                  updatedAt: c.updatedAt,
+                  profileImageUrl: c.profileImageUrl || 'https://i.pravatar.cc/150?img=' + (Number(c.userId || index) % 20),
+                  username: c.username,
+                }))
+              : [],
           username: apiPost.fullName || 'Unknown User',
-          avatarUrl: apiPost.avatarUrl || 'https://i.pravatar.cc/150?img=' + (Number(apiPost.postId || index) % 20),
+          profileImageUrl: apiPost.profileImageUrl || 'https://i.pravatar.cc/150?img=' + (Number(apiPost.postId || index) % 20),
           videoUrl: apiPost.contentUrl,
           caption: apiPost.caption || '',
           timeAgo: new Date(apiPost.createdAt).toLocaleString() || 'Just now',
@@ -419,7 +441,7 @@ function App() {
         return {
           id: apiPost.postId?.toString() || `search-temp-${Date.now()}-${index}`,
           username: apiPost.fullName || 'Unknown User',
-          avatarUrl: apiPost.avatarUrl || 'https://i.pravatar.cc/150?img=' + (Number(apiPost.postId || index) % 20),
+          profileImageUrl: apiPost.avatarUrl || 'https://i.pravatar.cc/150?img=' + (Number(apiPost.postId || index) % 20),
           videoUrl: apiPost.contentUrl,
           caption: apiPost.caption || '', // <--- ENSURE THIS LINE IS CORRECT
           timeAgo: new Date(apiPost.createdAt).toLocaleString() || 'Just now',

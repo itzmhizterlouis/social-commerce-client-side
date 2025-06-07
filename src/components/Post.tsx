@@ -1,8 +1,8 @@
 // src/components/Post.tsx
 import React, { useState } from 'react'; // Import useState
-import { HeartIcon, ChatBubbleOvalLeftIcon, PaperAirplaneIcon, BookmarkIcon, EllipsisHorizontalIcon } from '@heroicons/react/24/outline';
+import { HeartIcon, PaperAirplaneIcon, BookmarkIcon, EllipsisHorizontalIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconFilled } from '@heroicons/react/24/solid'; // Import solid heart icon for liked state
-import type { PostItem, Product } from '../App';
+import type { CommentItem, PostItem, Product } from '../App';
 import ProductDisplay from './ProductDisplay';
 import { likePost } from './api'
 
@@ -19,9 +19,14 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
     // You'd typically get the initial `isLiked` status from your `post` data
     // For demonstration, let's assume it's initially false or comes from `post.isLiked`
     const [isLiked, setIsLiked] = useState(post.liked || false);
-    console.log("Post is liked is: ", post.liked)
     // State to manage the like count (optional, but common)
     const [likeCount, setLikeCount] = useState(post.likes || 0);
+
+    const [showAllComments, setShowAllComments] = useState(false);
+
+    const visibleComments = showAllComments
+      ? post.comments || []
+      : (post.comments || []).slice(0, 2);
 
     const handleLikeClick = async () => {
       // Optimistically update the UI
@@ -63,9 +68,9 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
         {/* Post Header */}
         <div className="flex items-center p-4">
           <img
-            src={post.avatarUrl}
+            src={post.profileImageUrl}
             alt={`${post.username}'s avatar`}
-            className="w-10 h-10 rounded-full object-cover mr-3 cursor-pointer border-2 border-indigo-400"
+            className="w-10 h-10 rounded-full object-cover mr-3 cursor-pointer"
           />
           <p className="font-semibold text-sm text-white flex items-center">
             {post.username}
@@ -101,7 +106,6 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
             {/* Display like count */}
             <span className="text-gray-400 text-sm flex items-center">{likeCount}</span>
 
-            <ChatBubbleOvalLeftIcon className="h-6 w-6 text-gray-400 cursor-pointer hover:text-white" />
             <PaperAirplaneIcon className="h-6 w-6 rotate-45 -mt-1 -mr-2 text-gray-400 cursor-pointer hover:text-white" />
           </div>
           <BookmarkIcon className="h-6 w-6 text-gray-400 cursor-pointer hover:text-white" />
@@ -118,6 +122,49 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
           <div className="px-4 py-3 border-t border-gray-700 mt-2">
             <h4 className="text-sm font-semibold text-gray-300 mb-3">Products in this Post:</h4>
             <ProductDisplay products={post.products} addToCart={addToCart} />
+          </div>
+        )}
+
+        {/* Comments Section */}
+        {post.comments && post.comments.length > 0 && (
+          <div className="px-4 pb-2">
+            <h4 className="text-xs text-gray-400 mb-1">Comments</h4>
+            <ul>
+              {visibleComments.map((comment: CommentItem) => (
+                <li key={comment.commentId} className="mb-1 flex items-start">
+                  <img
+                    src={comment.profileImageUrl}
+                    alt={`${comment.username}'s avatar`}
+                    className="w-10 h-10 rounded-full object-cover mr-3 cursor-pointer"
+                  />
+                  <div>
+                    <span className="font-semibold text-xs text-white-300 mr-2">
+                      {comment.username}
+                    </span>
+                    <span className="text-gray-300 text-xs">{comment.comment}</span>
+                    <span className="text-gray-500 text-[10px] ml-2">
+                      {new Date(comment.createdAt).toLocaleString()}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            {post.comments.length > 2 && !showAllComments && (
+              <span
+                className="text-xs mt-1 cursor-pointer underline text-gray-400 hover:underline hover:text-white"
+                onClick={() => setShowAllComments(true)}
+              >
+                View all comments
+              </span>
+            )}
+            {showAllComments && post.comments.length > 2 && (
+              <span
+                className="text-xs mt-1 cursor-pointer underline text-gray-400 hover:underline hover:text-white"
+                onClick={() => setShowAllComments(false)}
+              >
+                Hide comments
+              </span>
+            )}
           </div>
         )}
 

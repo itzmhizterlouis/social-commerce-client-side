@@ -219,6 +219,7 @@ const CreatePostPage: React.FC<CreatePostPageProps> = ({
         caption: apiResponse.caption,
         products: responseProducts,
         likes: apiResponse.likes || 0,
+        profileImageUrl: apiResponse.profileImageUrl || 'https://via.placeholder.com/48x48?text=Avatar'
       };
 
       onCreatePost(localPostItem);
