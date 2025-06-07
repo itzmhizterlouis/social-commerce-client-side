@@ -347,7 +347,7 @@ function App() {
     setLoadingPosts(true);
     setErrorPosts(null);
     try {
-      const fetchedApiPosts = await fetchPosts(20, page);
+      const fetchedApiPosts = await fetchPosts(10, page);
       if (!Array.isArray(fetchedApiPosts)) {
         setErrorPosts("Unexpected API response format for posts.");
         setHasMorePosts(false);
@@ -795,18 +795,38 @@ const addToCart = async (product: Product) => {
         >
           {activeTab === 'Home' && (
             searchTerm.trim() ? ( // If there's a search term, display search results using HomePage
+              // <HomePage
+              //   posts={searchResults} // Pass search results here
+              //   loading={loadingSearch} // Use search loading state
+              //   error={errorSearch} // Use search error state
+              //   addToCart={addToCart}
+              // />
               <HomePage
-                posts={searchResults} // Pass search results here
-                loading={loadingSearch} // Use search loading state
-                error={errorSearch} // Use search error state
+                posts={searchResults}
+                loading={loadingSearch}
+                error={errorSearch}
                 addToCart={addToCart}
+                hasMorePosts={hasMorePosts}
+                loadingPosts={loadingPosts}
+                currentPage={currentPage}
+                loadPosts={loadPosts}
               />
             ) : ( // Otherwise, show the regular Home page with posts
+              // <HomePage
+              //   posts={posts} // Pass regular posts here
+              //   loading={loadingPosts} // Use regular posts loading state
+              //   error={errorPosts} // Use regular posts error state
+              //   addToCart={addToCart}
+              // />
               <HomePage
-                posts={posts} // Pass regular posts here
-                loading={loadingPosts} // Use regular posts loading state
-                error={errorPosts} // Use regular posts error state
+                posts={posts}
+                loading={loadingPosts}
+                error={errorPosts}
                 addToCart={addToCart}
+                hasMorePosts={hasMorePosts}
+                loadingPosts={loadingPosts}
+                currentPage={currentPage}
+                loadPosts={loadPosts}
               />
             )
           )}
