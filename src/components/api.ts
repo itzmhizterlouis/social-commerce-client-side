@@ -53,6 +53,7 @@ export const signInWithGoogle = () => {
 interface ProductPayload {
   name: string;
   amount: number;
+  image: File;
   imageUrl?: string; // Add imageUrl as it's typically returned for products
   productId?: number; // Add productId as it's typically returned for products
   userId?: string; // Add userId as it's typically returned for products
@@ -78,16 +79,27 @@ interface ProductPayload {
 /**
  * Uploads new products to the backend (JSON array, no image file).
  */
-export async function uploadProductsJson(products: ProductPayload[]) { // Renamed to avoid confusion
-  const response = await authenticatedFetch(`${API_BASE_URL}/products`, {
+export async function uploadProductsJson(product: ProductPayload) { // Renamed to avoid confusion
+  const formData = new FormData();
+  formData.append('image', product.image);
+  formData.append('name', product.name);
+  formData.append('amount', product.amount.toString());
+
+  const response = await authenticatedFetch(`${API_BASE_URL}/products`, { // Assuming this is the single product upload endpoint
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(products),
+    body: formData,
   });
   return response;
 }
+//   const response = await authenticatedFetch(`${API_BASE_URL}/products`, {
+//     method: 'POST',
+//     headers: {
+//       'Content-Type': 'application/json',
+//     },
+//     body: JSON.stringify(products),
+//   });
+//   return response;
+// }
 
 /**
  * Fetches all products from the backend.

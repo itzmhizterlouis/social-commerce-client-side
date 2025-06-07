@@ -118,16 +118,15 @@ const CreatePostPage: React.FC<CreatePostPageProps> = ({
     setIsLoading(true);
     try {
       console.log("CreatePostPage: Calling uploadProductWithImage API...");
-      var apiResponse = await uploadProductsJson([
+      var apiResponse = await uploadProductsJson(
         {
             name: newProductName,
-            amount: amount
+            amount: amount,
+            image: newProductImageFile
         }
-      ]
       );
 
       console.log('CreatePostPage: New product API response:', apiResponse);
-      apiResponse = apiResponse[0];
 
       const receivedProductId = Number(apiResponse.productId);
       if (isNaN(receivedProductId)) {
