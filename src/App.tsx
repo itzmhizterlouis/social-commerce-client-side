@@ -91,6 +91,9 @@ function App() {
     return savedToken;
   });
 
+  const [currentPage, setCurrentPage] = useState(0);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
+
 
   // NEW STATE: For orders data
   const [orders, setOrders] = useState<Order[]>([]);
@@ -335,25 +338,21 @@ function App() {
     }
   }, [isAuthenticated, currentUserId]); // Dependency on currentUserId
 
-  const loadPosts = useCallback(async () => {
-    console.log("App.tsx: loadPosts called.");
-    if (!isAuthenticated || !currentUserId) { // Dependency on currentUserId
-        console.warn("App.tsx: Not authenticated or user ID not available, skipping post load.");
-        setLoadingPosts(false);
-        return;
+  const loadPosts = useCallback(async (page = 0) => {
+    if (!isAuthenticated || !currentUserId) {
+      setLoadingPosts(false);
+      return;
     }
 
     setLoadingPosts(true);
     setErrorPosts(null);
     try {
-      const fetchedApiPosts = await fetchPosts(20, 0);
-      console.log('App.tsx: Fetched posts from API:', fetchedApiPosts);
-
+      const fetchedApiPosts = await fetchPosts(20, page);
       if (!Array.isArray(fetchedApiPosts)) {
-          console.error("App.tsx: fetchPosts API response is not an array:", fetchedApiPosts);
-          setErrorPosts("Unexpected API response format for posts.");
-          setPosts([]);
-          return;
+        setErrorPosts("Unexpected API response format for posts.");
+        setHasMorePosts(false);
+        setLoadingPosts(false);
+        return;
       }
 
       const formattedPosts: PostItem[] = fetchedApiPosts.map((apiPost: any, index: number) => {
@@ -397,17 +396,21 @@ function App() {
           liked: apiPost.liked
         };
       }).filter(Boolean) as PostItem[];
-      setPosts(formattedPosts);
-      console.log('App.tsx: Formatted posts before setting state:', formattedPosts);
+      if (page === 0) {
+        setPosts(formattedPosts);
+      } else {
+        setPosts(prev => [...prev, ...formattedPosts]);
+      }
+
+      setHasMorePosts(formattedPosts.length === 10); // If less than 20, no more pages
+      setCurrentPage(page);
     } catch (error: any) {
-      console.error('App.tsx: Error fetching posts:', error);
       setErrorPosts(error.message || 'Failed to fetch posts.');
-      setPosts([]);
+      setHasMorePosts(false);
     } finally {
       setLoadingPosts(false);
-      console.log("App.tsx: loadPosts finished. loadingPosts set to false.");
     }
-  }, [isAuthenticated, currentUserId]); // Dependency on currentUserId
+  }, [isAuthenticated, currentUserId]);
 
   const performSearch = useCallback(async (query: string) => {
     if (!query.trim()) { // If query is empty or just whitespace
