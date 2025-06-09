@@ -5,6 +5,7 @@ import { HeartIcon as HeartIconFilled } from '@heroicons/react/24/solid'; // Imp
 import type { CommentItem, PostItem, Product } from '../App';
 import ProductDisplay from './ProductDisplay';
 import { addCommentToPost, likePost } from './api'
+import { useNavigate } from 'react-router-dom';
 
 interface PostProps {
   post: PostItem;
@@ -13,6 +14,7 @@ interface PostProps {
   // if you're managing likes globally or need to update a parent's state.
   // onLike?: (postId: string) => Promise<void>;
 }
+
 
 const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
     // State to manage if the post is liked by the current user
@@ -32,6 +34,7 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
     const visibleComments = showAllComments
       ? comments
       : comments.slice(0, 2);
+    const navigate = useNavigate();
 
     // Handle comment submit on Enter
     const handleCommentKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -116,10 +119,14 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
             src={post.profileImageUrl}
             alt={`${post.username}'s avatar`}
             className="w-10 h-10 rounded-full object-cover mr-3 cursor-pointer"
+            onClick={() => navigate(`/user/${post.userId}`)}
           />
-          <p className="font-semibold text-sm text-white flex items-center">
+          <span
+            className="font-semibold text-gray-900 dark:text-white cursor-pointer hover:underline"
+            onClick={() => navigate(`/user/${post.userId}`)}
+          >
             {post.username}
-          </p>
+          </span>
           <span className="text-gray-400 text-xs ml-2">· {post.timeAgo}</span>
           <EllipsisHorizontalIcon className="h-5 w-5 text-gray-400 ml-auto cursor-pointer hover:text-white" />
         </div>
@@ -181,9 +188,13 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
                     src={comment.profileImageUrl}
                     alt={`${comment.username}'s avatar`}
                     className="w-10 h-10 rounded-full object-cover mr-3 cursor-pointer"
+                    onClick={() => navigate(`/user/${comment.userId}`)}
                   />
                   <div>
-                    <span className="font-semibold text-xs text-white-300 mr-2">
+                    <span
+                      className="font-semibold text-xs text-white-300 mr-2 cursor-pointer hover:underline"
+                      onClick={() => navigate(`/user/${comment.userId}`)}
+                    >
                       {comment.username}
                     </span>
                     <span className="text-gray-300 text-xs">{comment.comment}</span>

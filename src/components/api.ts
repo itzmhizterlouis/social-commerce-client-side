@@ -375,6 +375,44 @@ export async function addCommentToPost(postId: number, comment: string): Promise
   return response; // Should return the new comment object
 }
 
+export async function getUserByIdApi(userId: string) {
+  const response = await authenticatedFetch(`${API_BASE_URL}/users/${userId}`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+  return response;
+}
+
+export async function getPostsByUserApi(userId: string, pageSize: number, pageNumber: number) {
+  const url = new URL(`${API_BASE_URL}/posts/${userId}`);
+  url.searchParams.append('pageSize', pageSize.toString());
+  url.searchParams.append('pageNumber', pageNumber.toString());
+
+  console.log('Fetching posts for user from:', url.toString());
+
+  const response = await authenticatedFetch(url.toString(), {
+    method: 'GET',
+  });
+
+  return response; // The response is directly the array of posts
+}
+
+export async function followUserApi(userId: string) {
+  const response = await authenticatedFetch(`${API_BASE_URL}/users/follow/${userId}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
+  );
+  return response;
+}
+
 // NOTE: No DELETE /carts/{productId} or PUT /carts/{productId} (for quantity update)
 // were provided in the image. If these exist, we would implement them here.
 // For now, quantity manipulation on the frontend will be local only for demonstration.

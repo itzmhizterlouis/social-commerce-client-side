@@ -10,7 +10,7 @@ interface RightSidebarProps {
 
 const RightSidebar: React.FC<RightSidebarProps> = ({ searchTerm, onSearchChange, onSearchSubmit }) => {
   return (
-    <div className="hidden lg:flex flex-col flex-grow border-l border-gray-700 p-4 sticky top-0 h-screen overflow-y-auto">
+    <div className="hidden lg:flex flex-col flex-shrink-0 lg:w-80 max-w-full p-4 sticky top-0 h-screen overflow-y-auto bg-white dark:bg-gray-900 text-gray-900 dark:text-white transition-colors duration-300">
       {/* Search Bar */}
       <div className="relative mb-6">
         <input
@@ -30,7 +30,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({ searchTerm, onSearchChange,
       </div>
 
       {/* "Trends for you" section */}
-      <div className="bg-gray-800 rounded-lg p-4 mb-6">
+      {/* <div className="bg-gray-800 rounded-lg p-4 mb-6">
         <h3 className="text-xl font-bold text-white mb-4">Trends for you</h3>
         <ul className="text-gray-300 text-sm">
           <li className="mb-2">#TechInnovations <span className="text-gray-500 text-xs">2.5K Posts</span></li>
@@ -39,7 +39,7 @@ const RightSidebar: React.FC<RightSidebarProps> = ({ searchTerm, onSearchChange,
           <li className="mb-2">#SustainableLiving <span className="text-gray-500 text-xs">900 Posts</span></li>
           <li className="mb-2">#DIYProjects <span className="text-gray-500 text-xs">750 Posts</span></li>
         </ul>
-      </div>
+      </div> */}
 
       {/* "Who to follow" section */}
       <div className="bg-gray-800 rounded-lg p-4">

@@ -19,6 +19,7 @@ import OrdersSidebar from './components/OrderSidebar';
 import ActivateUserPage from './components/ActivateUserPage';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import OrderConfirmationPage from './components/OrderConfirmationPage';
+import UserProfilePage from './components/UserProfilePage';
 
 export interface SearchResultItem {
   type: 'post' | 'product'; // Assuming the backend returns a 'type' field
@@ -61,6 +62,7 @@ export interface PostItem {
   likes?: number;
   liked?: boolean;
   comments?: CommentItem[];
+  userId: string;
 }
 
 // src/App.tsx
@@ -393,7 +395,8 @@ function App() {
             imageUrl: p.imageUrl || 'https://via.placeholder.com/48x48?text=No+Image',
           })) : [],
           likes: apiPost.likes || 0,
-          liked: apiPost.liked
+          liked: apiPost.liked,
+          userId: apiPost.userId
         };
       }).filter(Boolean) as PostItem[];
       if (page === 0) {
@@ -444,7 +447,7 @@ function App() {
         return {
           id: apiPost.postId?.toString() || `search-temp-${Date.now()}-${index}`,
           username: apiPost.fullName || 'Unknown User',
-          profileImageUrl: apiPost.avatarUrl || 'https://i.pravatar.cc/150?img=' + (Number(apiPost.postId || index) % 20),
+          profileImageUrl: apiPost.profileImageUrl || 'https://i.pravatar.cc/150?img=' + (Number(apiPost.postId || index) % 20),
           videoUrl: apiPost.contentUrl,
           caption: apiPost.caption || '', // <--- ENSURE THIS LINE IS CORRECT
           timeAgo: new Date(apiPost.createdAt).toLocaleString() || 'Just now',
@@ -456,7 +459,8 @@ function App() {
             imageUrl: p.imageUrl || 'https://via.placeholder.com/48x48?text=No+Image',
           })) : [],
           likes: apiPost.likes || 0,
-          liked: apiPost.liked
+          liked: apiPost.liked,
+          userId: apiPost.userId
         };
       }).filter(Boolean) as PostItem[];
 
@@ -782,13 +786,13 @@ const addToCart = async (product: Product) => {
 
     return (
       <>
-        <Sidebar
+        {/* <Sidebar
           activeTab={activeTab}
           setActiveTab={setActiveTab}
           cartItemCount={cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0)}
           onCartIconClick={() => setIsCartSidebarOpen(true)}
           onOrdersIconClick={() => setIsOrdersSidebarOpen(true)}
-        />
+        /> */}
 
         <main
           className="flex-grow border-x border-gray-700 mx-auto w-full pt-4 pb-16 md:pb-4 max-w-[80vw] lg:max-w-[80vw] xl:max-w-[80vw]"
@@ -884,11 +888,11 @@ const addToCart = async (product: Product) => {
           )}
         </main>
 
-        <RightSidebar
+        {/* <RightSidebar
           searchTerm={searchTerm}
           onSearchChange={handleSearchChange}
           onSearchSubmit={handleSearchSubmit} // <-- ADD THIS PROP
-        />
+        /> */}
 
         <MobileBottomNav
           activeTab={activeTab}
@@ -922,15 +926,33 @@ const addToCart = async (product: Product) => {
   };
 
   return (
-    // You need BrowserRouter here if it's not in index.js
-    <BrowserRouter> {/* <--- ADD THIS */}
+    <BrowserRouter>
       <div className="flex bg-black min-h-screen min-w-screen text-white font-inter">
-        <Routes>
-          <Route path="/" element={renderContent()} />
-          <Route path="/auth/callback" element={renderContent()} />
-          <Route path="/payments/order/confirm/" element={<OrderConfirmationPage />}
-          />
-        </Routes>
+        {/* Sidebar (left) */}
+        <Sidebar
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          cartItemCount={cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0)}
+          onCartIconClick={() => setIsCartSidebarOpen(true)}
+          onOrdersIconClick={() => setIsOrdersSidebarOpen(true)}
+        />
+
+        {/* Main content */}
+        <div className="flex-1 flex flex-col min-h-screen">
+          <Routes>
+            <Route path="/user/:userId" element={<UserProfilePage addToCart={addToCart} />} />
+            <Route path="/" element={renderContent()} />
+            <Route path="/auth/callback" element={renderContent()} />
+            <Route path="/payments/order/confirm/" element={<OrderConfirmationPage />} />
+          </Routes>
+        </div>
+
+        {/* RightSidebar (right) */}
+        <RightSidebar
+          searchTerm={searchTerm}
+          onSearchChange={handleSearchChange}
+          onSearchSubmit={handleSearchSubmit}
+        />
       </div>
     </BrowserRouter>
   );
