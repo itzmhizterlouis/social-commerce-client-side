@@ -568,35 +568,18 @@ function App() {
   }, [isAuthenticated, authToken, currentUserId, fetchAndSetUserId]);
 
   useEffect(() => {
-      const loadAllInitialData = async () => {
-          // ... (Authentication and currentUserId logic remains the same)
+    if (!isAuthenticated || !currentUserId) return;
 
-          if (!currentUserId) { // Important check after potential fetchAndSetUserId
-              console.warn("App.tsx: currentUserId is still null after initial checks. Cannot load data.");
-              return;
-          }
-
-          // Step 2: Load Posts (FIRST)
-          console.log("App.tsx: Calling loadPosts...");
-          await loadPosts(); // AWAIT ensures it completes before the next line
-
-          // Step 3: Load Products (AFTER Posts)
-          console.log("App.tsx: Calling loadAvailableProducts (after posts)...");
-          await loadAvailableProducts(); // AWAIT ensures it completes
-
-          // Step 4: Load Cart Items (AFTER Products)
-          console.log("App.tsx: Calling loadCartItems (after products)...");
-          await loadCartItems(); // AWAIT ensures it completes
-
-          // NEW Step 5: Load Orders (AFTER Cart Items)
-          console.log("App.tsx: Calling loadOrders (after cart items)...");
-          await loadOrders();
-
-          console.log("App.tsx: All initial data loading sequence completed.");
-      };
-
-      loadAllInitialData();
-  }, [isAuthenticated, authToken, currentUserId, fetchAndSetUserId, loadPosts, loadAvailableProducts, loadCartItems]);
+    if (activeTab === 'Home') {
+      loadPosts();
+    }
+    if (activeTab === 'Products' || activeTab === 'Create') {
+      loadAvailableProducts();
+    }
+    if (activeTab === 'Cart') {
+      loadCartItems();
+    }
+  }, [activeTab, isAuthenticated, currentUserId, loadPosts, loadAvailableProducts, loadCartItems]);
 
   useEffect(() => {
     // This useEffect will no longer automatically trigger search on debounce.
@@ -610,6 +593,12 @@ function App() {
     // No `return () => clearTimeout(delaySearch);` needed anymore as there's no `setTimeout` to clear.
     // No `performSearch(searchTerm);` call here anymore.
   }, [searchTerm, searchResults.length]); // Dependencies: only searchTerm and searchResults.length
+
+  useEffect(() => {
+    if (activeTab === 'Home') setLoadingPosts(true);
+    if (activeTab === 'Products') setLoadingProducts(true);
+    if (activeTab === 'Cart') setLoadingCart(true);
+  }, [activeTab]);
 
 
   // ==================== Handlers for User Actions (updated to use currentUserId) ====================
