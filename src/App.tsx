@@ -108,6 +108,7 @@ function App() {
   const [searchResults, setSearchResults] = useState<PostItem[]>([]);
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [errorSearch, setErrorSearch] = useState<string | null>(null);
+  const [searchActive, setSearchActive] = useState(false);
 
   const [showProfileUpdatePage, setShowProfileUpdatePage] = useState(false);
   
@@ -584,12 +585,12 @@ function App() {
   useEffect(() => {
     // This useEffect will no longer automatically trigger search on debounce.
     // It will only clear search results if the search term becomes empty.
-    if (!searchTerm.trim() && searchResults.length > 0) {
-      console.log("App.tsx: Search term cleared, clearing search results.");
-      setSearchResults([]);
-      setErrorSearch(null);
-      setLoadingSearch(false);
-    }
+    // if (!searchTerm.trim() && searchResults.length > 0) {
+    //   console.log("App.tsx: Search term cleared, clearing search results.");
+    //   setSearchResults([]);
+    //   setErrorSearch(null);
+    //   setLoadingSearch(false);
+    // }
     // No `return () => clearTimeout(delaySearch);` needed anymore as there's no `setTimeout` to clear.
     // No `performSearch(searchTerm);` call here anymore.
   }, [searchTerm, searchResults.length]); // Dependencies: only searchTerm and searchResults.length
@@ -667,10 +668,16 @@ const addToCart = async (product: Product) => {
   };
 
   const handleSearchSubmit = useCallback(() => {
-    // This function will be called when the Enter key is pressed in the search bar.
-    console.log(`App.tsx: handleSearchSubmit called for term: "${searchTerm}"`);
-    performSearch(searchTerm); // Trigger the search with the current term
-  }, [searchTerm, performSearch]); // Dependencies: searchTerm (to get current value) and performSearch (the actual search logic)
+    if (!searchTerm.trim()) {
+      setSearchResults([]);
+      setErrorSearch(null);
+      setLoadingSearch(false);
+      setSearchActive(false); // Not searching
+      return;
+    }
+    setSearchActive(true); // Searching
+    performSearch(searchTerm);
+  }, [searchTerm, performSearch]);
 
   const removeCartItem = (productId: number) => {
     setCartItems((prevItems) => prevItems.filter((item) => item.productId !== productId));
@@ -698,9 +705,16 @@ const addToCart = async (product: Product) => {
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
-    console.log('App.tsx: Search term:', event.target.value);
-    handleSearchSubmit()
+    setSearchActive(false); // Reset search state when typing
   };
+
+  useEffect(() => {
+  //   // if (!searchTerm.trim() && searchResults.length > 0) {
+  //   //   setSearchResults([]);
+  //   //   setErrorSearch(null);
+  //   //   setLoadingSearch(false);
+  //   // }
+  }, [searchTerm, searchResults.length]);
 
   const handleAuthenticationSuccess = useCallback(async (token: string) => {
     setIsAuthenticated(true);
@@ -787,13 +801,7 @@ const addToCart = async (product: Product) => {
           className="flex-grow border-x border-gray-700 mx-auto w-full pt-4 pb-16 md:pb-4 max-w-[80vw] lg:max-w-[80vw] xl:max-w-[80vw]"
         >
           {activeTab === 'Home' && (
-            searchTerm.trim() ? ( // If there's a search term, display search results using HomePage
-              // <HomePage
-              //   posts={searchResults} // Pass search results here
-              //   loading={loadingSearch} // Use search loading state
-              //   error={errorSearch} // Use search error state
-              //   addToCart={addToCart}
-              // />
+            searchActive ? (
               <HomePage
                 posts={searchResults}
                 loading={loadingSearch}
@@ -804,13 +812,7 @@ const addToCart = async (product: Product) => {
                 currentPage={currentPage}
                 loadPosts={loadPosts}
               />
-            ) : ( // Otherwise, show the regular Home page with posts
-              // <HomePage
-              //   posts={posts} // Pass regular posts here
-              //   loading={loadingPosts} // Use regular posts loading state
-              //   error={errorPosts} // Use regular posts error state
-              //   addToCart={addToCart}
-              // />
+            ) : (
               <HomePage
                 posts={posts}
                 loading={loadingPosts}
