@@ -573,6 +573,7 @@ function App() {
 
     if (activeTab === 'Home') {
       loadPosts();
+      loadCartItems();
     }
     if (activeTab === 'Products' || activeTab === 'Create') {
       loadAvailableProducts();
@@ -580,7 +581,16 @@ function App() {
     if (activeTab === 'Cart') {
       loadCartItems();
     }
-  }, [activeTab, isAuthenticated, currentUserId, loadPosts, loadAvailableProducts, loadCartItems]);
+    if (activeTab === 'Orders') {
+      loadOrders();
+    }
+  }, [activeTab, isAuthenticated, currentUserId, loadPosts, loadAvailableProducts, loadCartItems, activeTab, loadOrders]);
+
+  useEffect(() => {
+    if (isOrdersSidebarOpen) {
+      loadOrders();
+    }
+  }, [isOrdersSidebarOpen, loadOrders]);
 
   useEffect(() => {
     // This useEffect will no longer automatically trigger search on debounce.
