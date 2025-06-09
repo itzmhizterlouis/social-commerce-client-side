@@ -930,13 +930,15 @@ const addToCart = async (product: Product) => {
     <BrowserRouter>
       <div className="flex bg-black min-h-screen min-w-screen text-white font-inter">
         {/* Sidebar (left) */}
-        <Sidebar
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          cartItemCount={cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0)}
-          onCartIconClick={() => setIsCartSidebarOpen(true)}
-          onOrdersIconClick={() => setIsOrdersSidebarOpen(true)}
-        />
+        {isAuthenticated && (
+          <Sidebar
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            cartItemCount={cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0)}
+            onCartIconClick={() => setIsCartSidebarOpen(true)}
+            onOrdersIconClick={() => setIsOrdersSidebarOpen(true)}
+          />
+        )}
 
         {/* Main content */}
         <div className="flex-1 flex flex-col min-h-screen">
@@ -949,11 +951,13 @@ const addToCart = async (product: Product) => {
         </div>
 
         {/* RightSidebar (right) */}
-        <RightSidebar
-          searchTerm={searchTerm}
-          onSearchChange={handleSearchChange}
-          onSearchSubmit={handleSearchSubmit}
-        />
+        {isAuthenticated && (
+          <RightSidebar
+            searchTerm={searchTerm}
+            onSearchChange={handleSearchChange}
+            onSearchSubmit={handleSearchSubmit}
+          />
+        )}
       </div>
     </BrowserRouter>
   );
