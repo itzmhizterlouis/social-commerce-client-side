@@ -142,23 +142,24 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
 
         {/* Post Actions */}
         <div className="flex justify-between items-center p-4">
-          <div className="flex space-x-4">
-            {/* Like Button */}
-            {isLiked ? (
-              <HeartIconFilled
-                className="h-6 w-6 text-red-500 cursor-pointer"
-                onClick={handleLikeClick}
-              />
-            ) : (
-              <HeartIcon
-                className="h-6 w-6 text-gray-400 cursor-pointer hover:text-red-400"
-                onClick={handleLikeClick}
-              />
-            )}
-            {/* Display like count */}
-            <span className="text-gray-400 text-sm flex items-center">{likeCount}</span>
-
-            <PaperAirplaneIcon className="h-6 w-6 rotate-45 -mt-1 -mr-2 text-gray-400 cursor-pointer hover:text-white" />
+          <div className="flex items-center">
+            {/* Like Button and Like Count */}
+            <div className="flex items-center gap-1">
+              {isLiked ? (
+                <HeartIconFilled
+                  className="h-6 w-6 text-red-500 cursor-pointer"
+                  onClick={handleLikeClick}
+                />
+              ) : (
+                <HeartIcon
+                  className="h-6 w-6 text-gray-400 cursor-pointer hover:text-red-400"
+                  onClick={handleLikeClick}
+                />
+              )}
+              <span className="text-gray-400 text-sm">{likeCount}</span>
+            </div>
+            {/* Share Button (flipped as before) */}
+            <PaperAirplaneIcon className="h-6 w-6 rotate-45 text-gray-400 cursor-pointer hover:text-white ml-6" />
           </div>
           <BookmarkIcon className="h-6 w-6 text-gray-400 cursor-pointer hover:text-white" />
         </div>
