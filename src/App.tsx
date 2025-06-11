@@ -20,6 +20,7 @@ import ActivateUserPage from './components/ActivateUserPage';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import OrderConfirmationPage from './components/OrderConfirmationPage';
 import UserProfilePage from './components/UserProfilePage';
+import SettingsPage from './components/SettingsPage';
 
 export interface SearchResultItem {
   type: 'post' | 'product'; // Assuming the backend returns a 'type' field
@@ -887,9 +888,7 @@ const addToCart = async (product: Product) => {
               isCheckoutLoading={isCheckoutLoading} // NEW: Pass the loading state to CartPage
             />
           )}
-          {activeTab === 'Settings' && (
-            <div className="p-4 text-center text-gray-400">Settings Page Coming Soon!</div>
-          )}
+          {activeTab === 'Settings' && <SettingsPage />}
         </main>
 
         {/* <RightSidebar
