@@ -28,13 +28,18 @@ const ActivateUserPage: React.FC<ActivateUserPageProps> = ({
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
   const [localError, setLocalError] = useState<string | null>(null);
 
-  useEffect(() => {
-    setPhoneNumber(userDetails?.phoneNumber || '');
-    setStreetAddress(userDetails?.address?.streetAddress || '');
-    setState(userDetails?.address?.state || '');
-    setCountry(userDetails?.address?.country || '');
-    setProfileImageUrl(userDetails?.profileImageUrl || '');
-  }, [userDetails]);
+const [didInit, setDidInit] = useState(false);
+
+useEffect(() => {
+  if (!didInit && userDetails) {
+    setPhoneNumber(userDetails.phoneNumber || '');
+    setStreetAddress(userDetails.address?.streetAddress || '');
+    setState(userDetails.address?.state || '');
+    setCountry(userDetails.address?.country || '');
+    setProfileImageUrl(userDetails.profileImageUrl || '');
+    setDidInit(true);
+  }
+}, [userDetails, didInit]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
