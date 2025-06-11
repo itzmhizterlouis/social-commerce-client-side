@@ -53,17 +53,18 @@ const ActivateUserPage: React.FC<ActivateUserPageProps> = ({
     e.preventDefault();
     setLocalError(null);
 
-    if (!phoneNumber || !streetAddress || !state || !country || !profileImageFile) {
+    if (!phoneNumber || !streetAddress || !state || !country) {
       setLocalError('All fields are required.');
       return;
     }
 
+    // Only include profileImageFile if it exists
     const payload: UpdateUserPayload = {
       phoneNumber,
       streetAddress,
       state,
       country,
-      profileImageFile: profileImageFile, // always a valid File
+      ...(profileImageFile ? { profileImageFile } : {}),
     };
 
     try {

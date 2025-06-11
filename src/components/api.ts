@@ -333,12 +333,14 @@ export interface UpdateUserPayload {
   streetAddress: string;
   state: string;
   country: string;
-  profileImageFile: File;
+  profileImageFile?: File;
 }
 
 export async function updateUserApi(payload: UpdateUserPayload): Promise<LoggedInUserResponse> {
   const formData = new FormData();
-  formData.append('profileImage', payload.profileImageFile);
+  if (payload.profileImageFile) {
+    formData.append('profileImage', payload.profileImageFile);
+  }
   formData.append('streetAddress', payload.streetAddress);
   formData.append('state', payload.state);
   formData.append('country', payload.country);
