@@ -77,7 +77,7 @@ const ActivateUserPage: React.FC<ActivateUserPageProps> = ({
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4">
       <div className="bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center mb-6">Account Activation Required</h1>
+        <h1 className="text-3xl font-bold text-center mb-6">Update Account Details</h1>
         <p className="text-gray-400 text-center mb-6">
           Please provide your contact and address details to activate your account.
         </p>
