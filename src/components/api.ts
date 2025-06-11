@@ -243,16 +243,9 @@ export interface LoggedInUserResponse {
     email: string;
     activated: boolean;
     phoneNumber: string;
-    address: any[]
+    address: any
     profileImageUrl: string;
     // Add any other user properties returned by your API
-}
-
-export interface UpdateUserPayload {
-  phoneNumber: string;
-  streetAddress: string;
-  state: string;
-  country: string;
 }
 
 export const getLoggedInUser = async (): Promise<LoggedInUserResponse> => {
@@ -335,17 +328,28 @@ export async function searchApi(query: string, pageSize: Number, pageNumber: Num
   return response;
 }
 
-export async function updateUserApi(payload: UpdateUserPayload): Promise<LoggedInUserResponse> {
-  const response = await authenticatedFetch(`${API_BASE_URL}/users/profile`, { // Adjust URL if different
-    method: 'PUT', // Or 'PATCH' depending on your backend
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-  console.log("Called update user profile api");
+export interface UpdateUserPayload {
+  phoneNumber: string;
+  streetAddress: string;
+  state: string;
+  country: string;
+  profileImageFile: File;
+}
 
-  return response; // Assuming it returns the updated user object
+export async function updateUserApi(payload: UpdateUserPayload): Promise<LoggedInUserResponse> {
+  const formData = new FormData();
+  formData.append('profileImage', payload.profileImageFile);
+  formData.append('streetAddress', payload.streetAddress);
+  formData.append('state', payload.state);
+  formData.append('country', payload.country);
+  formData.append('phoneNumber', payload.phoneNumber);
+
+  const response = await authenticatedFetch(`${API_BASE_URL}/users/profile`, {
+    method: 'PUT',
+    body: formData,
+  });
+
+  return response; // Returns the full PostItem response
 }
 
 export async function fetchOrderById (orderId: string): Promise<OrderResponse> {

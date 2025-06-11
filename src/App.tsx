@@ -95,6 +95,7 @@ function App() {
 
   const [currentPage, setCurrentPage] = useState(0);
   const [hasMorePosts, setHasMorePosts] = useState(true);
+  const [currentUserDetails, setCurrentUserDetails] = useState<LoggedInUserResponse | null>(null);
 
 
   // NEW STATE: For orders data
@@ -162,36 +163,30 @@ function App() {
   // ==================== NEW: Fetch Logged-In User ID ====================
   const fetchAndSetUserId = useCallback(async () => {
     if (!isAuthenticated || !authToken) {
-      console.log("App.tsx: Not authenticated or no token, cannot fetch user ID.");
-      setCurrentUserId(null); // Ensure ID is null if not authenticated
+      setCurrentUserId(null);
+      setCurrentUserDetails(null);
       return;
     }
     try {
-      console.log("App.tsx: Attempting to fetch logged-in user ID.");
       const user: LoggedInUserResponse = await getLoggedInUser();
-      console.log("App.tsx: Logged-in user data:", user);
+      setCurrentUserDetails(user); // <-- Store user details
       if (user && user.userId) {
         setCurrentUserId(user.userId);
-        localStorage.setItem('currentUserId', user.userId); // You could optionally store this in localStorage
-        if (user.activated === false) { // If user is not activated
-          console.log("App.tsx: User account is NOT activated. Displaying profile update page.");
+        localStorage.setItem('currentUserId', user.userId);
+        if (user.activated === false) {
           setShowProfileUpdatePage(true);
           return;
         }
-
         setShowProfileUpdatePage(false);
       } else {
-        console.error("App.tsx: Logged-in user response is missing ID:", user);
         setCurrentUserId(null);
-        // Consider setting isAuthenticated to false if user ID cannot be retrieved
+        setCurrentUserDetails(null);
         setIsAuthenticated(false);
         setAuthToken(null);
       }
     } catch (error: any) {
-      console.error('App.tsx: Failed to fetch logged-in user ID:', error);
       setCurrentUserId(null);
-      localStorage.removeItem('currentUserId'); // Clear from localStorage on API error
-      // If fetching user ID fails, it might mean the token is invalid, so log out
+      setCurrentUserDetails(null);
       setIsAuthenticated(false);
       setAuthToken(null);
     }
@@ -774,11 +769,19 @@ const addToCart = async (product: Product) => {
     if (showProfileUpdatePage && currentUserId) { // currentUserId must be available for the form
       return (
         <ActivateUserPage
-          onActivateSuccess={() => { /* handleUserActivation handles the re-fetch */ }}
+          onActivateSuccess={() => {}}
           updateUser={handleUserActivation}
-          // Assuming loading/error states are managed within ActivateUserPage or by alerts
           loading={false}
           error={null}
+          userDetails={{
+            phoneNumber: currentUserDetails?.phoneNumber || '',
+            address: {
+              streetAddress: currentUserDetails?.address?.streetAddress || '',
+              state: currentUserDetails?.address?.state || '',
+              country: currentUserDetails?.address?.country || '',
+            },
+            profileImageUrl: currentUserDetails?.profileImageUrl
+          }}
         />
       );
     }
