@@ -1,5 +1,5 @@
 // src/components/Post.tsx
-import React, { useState } from 'react'; // Import useState
+import React, { useState, useRef, useEffect } from 'react'; // Import useState
 import { HeartIcon, PaperAirplaneIcon, BookmarkIcon, EllipsisHorizontalIcon, ChatBubbleLeftEllipsisIcon } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartIconFilled } from '@heroicons/react/24/solid'; // Import solid heart icon for liked state
 import type { CommentItem, PostItem, Product } from '../App';
@@ -48,6 +48,33 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
         await submitComment();
       }
     };
+
+    const videoRef = useRef<HTMLVideoElement>(null);
+
+    useEffect(() => {
+      const video = videoRef.current;
+      if (!video) return;
+
+      const handlePlayPause = (entries: IntersectionObserverEntry[]) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            video.play().catch(() => {});
+          } else {
+            video.pause();
+          }
+        });
+      };
+
+      const observer = new window.IntersectionObserver(handlePlayPause, {
+        threshold: 0.5, // Play when at least 50% visible
+      });
+
+      observer.observe(video);
+
+      return () => {
+        observer.unobserve(video);
+      };
+    }, []);
 
     const Loader = () => (
       <svg className="animate-spin h-5 w-5 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -133,8 +160,14 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
 
         {/* Video Media */}
         <div className="bg-black">
-          <video controls muted loop
-            className="w-full h-auto max-h-[30vw] object-contain">
+          <video
+            ref={videoRef}
+            controls
+            muted
+            loop
+            className="w-full h-auto max-h-[30vw] object-contain"
+            preload="none"
+          >
             <source src={post.videoUrl} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
