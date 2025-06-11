@@ -217,26 +217,26 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
             <h4 className="text-xs text-gray-400 mb-1">Comments</h4>
             <ul>
               {visibleComments.map((comment: CommentItem) => (
-                <li key={comment.commentId} className="mb-1 flex items-start">
-                  <img
-                    src={comment.profileImageUrl}
-                    alt={`${comment.username}'s avatar`}
-                    className="w-10 h-10 rounded-full object-cover mr-3 cursor-pointer"
+              <li key={comment.commentId} className="mb-1 flex items-center">
+                <img
+                  src={comment.profileImageUrl}
+                  alt={`${comment.username}'s avatar`}
+                  className="w-10 h-10 rounded-full object-cover mr-3 cursor-pointer"
+                  onClick={() => navigate(`/user/${comment.userId}`)}
+                />
+                <div>
+                  <span
+                    className="font-semibold text-xs text-white-300 mr-2 cursor-pointer hover:underline"
                     onClick={() => navigate(`/user/${comment.userId}`)}
-                  />
-                  <div>
-                    <span
-                      className="font-semibold text-xs text-white-300 mr-2 cursor-pointer hover:underline"
-                      onClick={() => navigate(`/user/${comment.userId}`)}
-                    >
-                      {comment.username}
-                    </span>
-                    <span className="text-gray-300 text-xs">{comment.comment}</span>
-                    <span className="text-gray-500 text-[10px] ml-2">
-                      {new Date(comment.createdAt).toLocaleString()}
-                    </span>
-                  </div>
-                </li>
+                  >
+                    {comment.username}
+                  </span>
+                  <span className="text-gray-300 text-xs">{comment.comment}</span>
+                  <span className="text-gray-500 text-[10px] ml-2">
+                    {new Date(comment.createdAt).toLocaleString()}
+                  </span>
+                </div>
+              </li>
               ))}
             </ul>
             {comments.length > 2 && !showAllComments && (
