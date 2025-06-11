@@ -160,6 +160,8 @@ function App() {
     }
   }, [authToken]);
 
+  const [activateLoading, setActivateLoading] = useState(false);
+
   // ==================== NEW: Fetch Logged-In User ID ====================
   const fetchAndSetUserId = useCallback(async () => {
     if (!isAuthenticated || !authToken) {
@@ -197,20 +199,18 @@ function App() {
       alert('User ID not available for update.');
       return;
     }
+    setActivateLoading(true); // Start loading
     try {
-      console.log("App.tsx: Calling updateUserApi for profile update with payload:", payload);
       await updateUserApi(payload);
-      console.log("App.tsx: User profile updated successfully. Re-fetching user status...");
       alert('Profile updated successfully! Redirecting to Home page.');
-      setShowProfileUpdatePage(false); // <--- HIDE THE STANDALONE PAGE
-      // After successful update, re-fetch user status.
-      // fetchAndSetUserId will check 'activated' (which should now be true) and load main data.
+      setShowProfileUpdatePage(false);
       await fetchAndSetUserId();
     } catch (error: any) {
-      console.error('App.tsx: Error updating user profile:', error);
       alert(`Failed to update profile: ${error.message || 'An unexpected error occurred. Please try again.'}`);
+    } finally {
+      setActivateLoading(false); // End loading
     }
-  }, [currentUserId, fetchAndSetUserId, setShowProfileUpdatePage]); // <--- ADDED: setShowProfileUpdatePage to dependencies
+  }, [currentUserId, fetchAndSetUserId, setShowProfileUpdatePage]);
 
   // ==================== API Loading Callbacks (updated to use currentUserId) ====================
 
@@ -766,25 +766,25 @@ const addToCart = async (product: Product) => {
       return <SignInPage backendGoogleAuthUrl="https://social-commerce-be-production.up.railway.app/signin" />;
     }
 
-    if (showProfileUpdatePage && currentUserId) { // currentUserId must be available for the form
-      return (
-        <ActivateUserPage
-          onActivateSuccess={() => {}}
-          updateUser={handleUserActivation}
-          loading={false}
-          error={null}
-          userDetails={{
-            phoneNumber: currentUserDetails?.phoneNumber || '',
-            address: {
-              streetAddress: currentUserDetails?.address?.streetAddress || '',
-              state: currentUserDetails?.address?.state || '',
-              country: currentUserDetails?.address?.country || '',
-            },
-            profileImageUrl: currentUserDetails?.profileImageUrl
-          }}
-        />
-      );
-    }
+  if (showProfileUpdatePage && currentUserId) {
+    return (
+      <ActivateUserPage
+        onActivateSuccess={() => {}}
+        updateUser={handleUserActivation}
+        loading={activateLoading} // <-- Pass the loading state here
+        error={null}
+        userDetails={{
+          phoneNumber: currentUserDetails?.phoneNumber || '',
+          address: {
+            streetAddress: currentUserDetails?.address?.streetAddress || '',
+            state: currentUserDetails?.address?.state || '',
+            country: currentUserDetails?.address?.country || '',
+          },
+          profileImageUrl: currentUserDetails?.profileImageUrl
+        }}
+      />
+    );
+  }
 
     // Only render main content if user is authenticated AND currentUserId is available
     if (!currentUserId) {
