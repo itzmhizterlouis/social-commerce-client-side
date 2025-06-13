@@ -72,7 +72,7 @@ const OrderConfirmationPage: React.FC = () => {
             {orderDetails && (
               <div className="text-gray-700 text-left w-full max-w-xs sm:max-w-sm mb-4"> {/* Added w-full, max-w-xs/sm for text alignment */}
                 <p className="text-md break-all">Order ID: <span className="font-semibold">{orderDetails.orderId}</span></p> {/* break-all for long IDs */}
-                <p className="text-md">Amount Paid: <span className="font-semibold">${orderDetails.totalAmount.toFixed(2)}</span></p>
+                <p className="text-md">Amount Paid: <span className="font-semibold">₦{orderDetails.totalAmount.toFixed(2)}</span></p>
               </div>
             )}
             <button

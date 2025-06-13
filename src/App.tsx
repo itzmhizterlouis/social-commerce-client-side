@@ -932,7 +932,7 @@ const addToCart = async (product: Product) => {
     <BrowserRouter>
       <div className="flex bg-black min-h-screen min-w-screen text-white font-inter">
         {/* Sidebar (left) */}
-        {isAuthenticated && (
+        {isAuthenticated && !showProfileUpdatePage && (
           <Sidebar
             activeTab={activeTab}
             setActiveTab={setActiveTab}
@@ -953,7 +953,7 @@ const addToCart = async (product: Product) => {
         </div>
 
         {/* RightSidebar (right) */}
-        {isAuthenticated && (
+        {isAuthenticated && !showProfileUpdatePage && (
           <RightSidebar
             searchTerm={searchTerm}
             onSearchChange={handleSearchChange}

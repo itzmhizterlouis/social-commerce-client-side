@@ -324,7 +324,7 @@ const CreatePostPage: React.FC<CreatePostPageProps> = ({
                       />
                       <div className="flex flex-col overflow-hidden w-full">
                           <p className="text-white text-sm font-semibold break-words line-clamp-2">{product.name}</p>
-                          <p className="text-gray-300 text-xs mt-1">${product.amount?.toFixed(2) || '0.00'}</p>
+                          <p className="text-gray-300 text-xs mt-1">₦{product.amount?.toFixed(2) || '0.00'}</p>
                       </div>
                       {selectedProducts.some(p => p.productId === product.productId) && (
                           <span className="text-white text-lg font-bold ml-2">✓</span>

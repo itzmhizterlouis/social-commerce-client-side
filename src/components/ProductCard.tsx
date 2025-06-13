@@ -17,7 +17,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, addToCart }) => {
       />
       <div className="flex-grow flex flex-col justify-between">
         <h3 className="text-lg font-semibold text-white truncate mb-1">{product.name}</h3>
-        <p className="text-green-500 font-bold text-xl mb-4">${product.amount.toFixed(2)}</p> {/* Use amount */}
+        <p className="text-green-500 font-bold text-xl mb-4">₦{product.amount.toFixed(2)}</p> {/* Use amount */}
       </div>
       <button
         onClick={() => addToCart(product)}

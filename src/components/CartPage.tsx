@@ -64,7 +64,7 @@ const CartPage: React.FC<CartPageProps> = ({
                 <img src={item.imageUrl} alt={item.name} className="w-20 h-20 object-cover rounded-md mr-4" />
                 <div className="flex-grow">
                   <h3 className="text-lg font-semibold text-white">{item.name}</h3>
-                  <p className="text-green-500">${item.amount.toFixed(2)}</p>
+                  <p className="text-green-500">₦{item.amount.toFixed(2)}</p>
                 </div>
                 <div className="flex items-center space-x-2">
                   <button

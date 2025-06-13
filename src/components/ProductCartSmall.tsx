@@ -18,7 +18,7 @@ const ProductCardSmall: React.FC<ProductCardSmallProps> = ({ product, addToCart 
       />
       <div className="flex-grow flex-shrink min-w-0 max-w-[calc(100%-10rem)] md:max-w-none">
         <h5 className="text-sm font-semibold text-white truncate whitespace-nowrap">{product.name}</h5>
-        <p className="text-green-500 font-bold text-md whitespace-nowrap overflow-hidden text-ellipsis">${product.amount.toFixed(2)}</p> {/* Use amount */}
+        <p className="text-green-500 font-bold text-md whitespace-nowrap overflow-hidden text-ellipsis">₦{product.amount.toFixed(2)}</p> {/* Use amount */}
       </div>
       <button
         onClick={() => addToCart(product)}

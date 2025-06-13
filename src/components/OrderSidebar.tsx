@@ -80,7 +80,7 @@ const OrdersSidebar: React.FC<OrdersSidebarProps> = ({
                     order.products.map((product, index) => (
                       <li key={index} className="flex items-center text-sm text-gray-300">
                         <span className="mr-2 text-indigo-400">•</span>
-                        {product.name} - ${product.amount.toFixed(2)}
+                        {product.name} - ₦{product.amount.toFixed(2)}
                       </li>
                     ))
                   ) : (
