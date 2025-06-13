@@ -139,7 +139,7 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
     };
 
     return (
-      <div className="bg-gray-800 rounded-lg shadow-lg max-w-[50vw] mx-auto my-4 w-full">
+      <div className="bg-gray-800 rounded-lg shadow-lg w-full max-w-full mx-auto my-4">
         {/* Post Header */}
         <div className="flex items-center p-4">
           <img
@@ -165,7 +165,7 @@ const Post: React.FC<PostProps> = ({ post, addToCart /*, onLike */ }) => {
             controls
             muted
             loop
-            className="w-full h-auto max-h-[30vw] object-contain"
+            className="w-full h-auto max-h-[60vw] sm:max-h-[40vw] md:max-h-[30vw] object-contain"
             preload="none"
           >
             <source src={post.videoUrl} type="video/mp4" />

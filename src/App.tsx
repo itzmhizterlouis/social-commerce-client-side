@@ -811,9 +811,9 @@ const addToCart = async (product: Product) => {
           onOrdersIconClick={() => setIsOrdersSidebarOpen(true)}
         /> */}
 
-        <main
-          className="flex-grow border-x border-gray-700 mx-auto w-full pt-4 pb-16 md:pb-4 max-w-[80vw] lg:max-w-[80vw] xl:max-w-[80vw]"
-        >
+    <main
+      className="flex-grow mx-auto w-full pt-4 pb-16 md:pb-4 max-w-full"
+    >
           {activeTab === 'Home' && (
             searchActive ? (
               <HomePage
