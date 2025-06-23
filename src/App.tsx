@@ -777,7 +777,7 @@ const addToCart = async (product: Product) => {
           <Routes>
             {/* Public routes */}
             <Route path="/auth/callback" element={<AuthCallbackPage />} />
-            <Route path="/signin" element={<SignInPage backendGoogleAuthUrl={'http://localhost:8080/signin'} />} />
+            <Route path="/signin" element={<SignInPage backendGoogleAuthUrl={'https://social-commerce-be-production.up.railway.app/signin'} />} />
             <Route path="/activate" element={
               <ActivateUserPage
                 onActivateSuccess={() => setShowProfileUpdatePage(false)}
@@ -811,7 +811,7 @@ const addToCart = async (product: Product) => {
                     <Route
                       path="/signin"
                       element={
-                        <SignInPage backendGoogleAuthUrl={'http://localhost:8080/signin'} />
+                        <SignInPage backendGoogleAuthUrl={'https://social-commerce-be-production.up.railway.app/signin'} />
                       }
                     />
                     <Route
