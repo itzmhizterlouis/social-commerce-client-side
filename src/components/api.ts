@@ -419,6 +419,109 @@ export async function followUserApi(userId: string) {
   return response;
 }
 
+export interface Message {
+  messageId: string;
+  content: string;
+  roomId: string;
+  sender: string;
+  senderId: string;
+  createdAt: string;
+  type: string;
+}
+
+export interface Conversation {
+  roomId: string;
+  firstUser: string;
+  secondUser: string;
+  messages: Message[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Get all rooms for the current user
+export async function getConversations(): Promise<Conversation[]> {
+  const response = await authenticatedFetch(`${API_BASE_URL}/messages/user`, {
+    method: 'GET',
+  });
+  return response.map((room: any) => ({
+    roomId: room.roomId,
+    firstUser: room.firstUser,
+    secondUser: room.secondUser,
+    messages: (room.messages || []).map((msg: any) => ({
+      messageId: msg.messageId,
+      content: msg.content,
+      roomId: msg.roomId,
+      sender: msg.sender,
+      senderId: msg.senderId,
+      createdAt: msg.createdAt,
+      type: msg.type,
+    })),
+    createdAt: room.createdAt,
+    updatedAt: room.updatedAt,
+  }));
+}
+
+// Get messages for a room
+export async function getMessages(roomId: string): Promise<Message[]> {
+  const response = await authenticatedFetch(`${API_BASE_URL}/messages/rooms/${roomId}/messages`, {
+    method: 'GET',
+  });
+  return response.map((msg: any) => ({
+    messageId: msg.messageId,
+    content: msg.content,
+    roomId: msg.roomId,
+    sender: msg.sender,
+    senderId: msg.senderId,
+    createdAt: msg.createdAt,
+    type: msg.type,
+  }));
+}
+
+// Send a message to a room
+export async function sendMessage(roomId: string, content: string): Promise<Message> {
+  const formData = new FormData();
+  formData.append('content', content);
+  formData.append('messageType', 'TEXT');
+
+  const response = await authenticatedFetch(`${API_BASE_URL}/messages/send/${roomId}`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  return {
+    messageId: response.messageId,
+    content: response.content,
+    roomId: response.roomId,
+    sender: response.sender,
+    senderId: response.senderId,
+    createdAt: response.createdAt,
+    type: response.type,
+  };
+}
+
+export async function getConversationById(roomId: string): Promise<Conversation> {
+  const response = await authenticatedFetch(`${API_BASE_URL}/messages/room/${roomId}`, {
+    method: 'GET',
+  });
+
+  return {
+    roomId: response.roomId,
+    firstUser: response.firstUser,
+    secondUser: response.secondUser,
+    messages: (response.messages || []).map((msg: any) => ({
+      messageId: msg.messageId,
+      content: msg.content,
+      roomId: msg.roomId,
+      sender: msg.sender,
+      senderId: msg.senderId,
+      createdAt: msg.createdAt,
+      type: msg.type,
+    })),
+    createdAt: response.createdAt,
+    updatedAt: response.updatedAt,
+  };
+}
+
 // NOTE: No DELETE /carts/{productId} or PUT /carts/{productId} (for quantity update)
 // were provided in the image. If these exist, we would implement them here.
 // For now, quantity manipulation on the frontend will be local only for demonstration.

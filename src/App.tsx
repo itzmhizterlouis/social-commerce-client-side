@@ -21,6 +21,10 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import OrderConfirmationPage from './components/OrderConfirmationPage';
 import UserProfilePage from './components/UserProfilePage';
 import SettingsPage from './components/SettingsPage';
+import MessagesPage from './components/MessagePage';
+import MessageThreadWrapper from './components/MessageThreadWeapper';
+import RequireAuth from './components/RequireAuth';
+import AuthCallbackPage from './components/AuthCallbackPage';
 
 export interface SearchResultItem {
   type: 'post' | 'product'; // Assuming the backend returns a 'type' field
@@ -754,184 +758,10 @@ const addToCart = async (product: Product) => {
     }
   }, [isAuthenticated, handleAuthenticationSuccess]); // Dependencies for this effect
 
-  const renderContent = () => {
-    if (!isAuthenticated) {
-      if (window.location.pathname === '/auth/callback' || window.location.pathname === '/auth/callback/') {
-        return (
-          <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4">
-            <h1 className="text-3xl font-bold mb-4">Authenticating...</h1>
-            <p className="text-gray-400">Please wait while we log you in.</p>
-          </div>
-        );
-      }
-      return <SignInPage backendGoogleAuthUrl="https://social-commerce-be-production.up.railway.app/signin" />;
-    }
-
-  if (showProfileUpdatePage && currentUserId) {
-    return (
-      <ActivateUserPage
-        onActivateSuccess={() => {}}
-        updateUser={handleUserActivation}
-        loading={activateLoading} // <-- Pass the loading state here
-        error={null}
-        userDetails={{
-          phoneNumber: currentUserDetails?.phoneNumber || '',
-          address: {
-            streetAddress: currentUserDetails?.address?.streetAddress || '',
-            state: currentUserDetails?.address?.state || '',
-            country: currentUserDetails?.address?.country || '',
-          },
-          profileImageUrl: currentUserDetails?.profileImageUrl
-        }}
-      />
-    );
-  }
-
-    // Only render main content if user is authenticated AND currentUserId is available
-    if (!currentUserId) {
-        return (
-            <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4">
-                <h1 className="text-3xl font-bold mb-4">Loading User Profile...</h1>
-                <p className="text-gray-400">Fetching your user data.</p>
-                <svg className="animate-spin h-10 w-10 text-indigo-500 mt-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-            </div>
-        );
-    }
-
-    return (
-      <>
-        {/* <Sidebar
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          cartItemCount={cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0)}
-          onCartIconClick={() => setIsCartSidebarOpen(true)}
-          onOrdersIconClick={() => setIsOrdersSidebarOpen(true)}
-        /> */}
-
-    <main
-      className="flex-grow mx-auto w-full pt-4 pb-16 md:pb-4 max-w-full"
-    >
-          {activeTab === 'Home' && (
-            searchActive ? (
-              <HomePage
-                posts={searchResults}
-                loading={loadingSearch}
-                error={errorSearch}
-                addToCart={addToCart}
-                hasMorePosts={hasMorePosts}
-                loadingPosts={loadingPosts}
-                currentPage={currentPage}
-                loadPosts={loadPosts}
-              />
-            ) : (
-              <HomePage
-                posts={posts}
-                loading={loadingPosts}
-                error={errorPosts}
-                addToCart={addToCart}
-                hasMorePosts={hasMorePosts}
-                loadingPosts={loadingPosts}
-                currentPage={currentPage}
-                loadPosts={loadPosts}
-              />
-            )
-          )}
-          {activeTab === 'Following' && (
-            <div className="p-4 text-center text-gray-400">Following Feed Coming Soon!</div>
-          )}
-          {activeTab === 'Products' && (
-            <ProductsPage
-              products={availableProducts}
-              loading={loadingProducts}
-              error={errorProducts}
-              addToCart={addToCart}
-            />
-          )}
-          {activeTab === 'Create' && (
-            <CreatePostPage
-              availableProducts={userProducts}
-              loadingProducts={loadingProducts}
-              errorProducts={errorProducts}
-              onCreatePost={handleCreatePost}
-              onProductSuccess={handleProductSuccess}
-              onPostSuccess={handlePostSuccess}
-              currentUserId={currentUserId} // Pass the actual current user ID
-            />
-          )}
-          {activeTab === 'Cart' && (
-            <CartPage
-              cartItems={cartItems}
-              cartTotalAmount={cartTotalAmount}
-              loading={loadingCart}
-              error={errorCart}
-              updateCartItemQuantity={updateCartItemQuantity}
-              removeCartItem={removeCartItem}
-              onCheckout={async () => {
-                setIsCheckoutLoading(true); // Start loading
-                try {
-                  const response = await initiateCheckout();
-                  if (response.status === "INTERNAL_SERVER_ERROR") {
-                    alert(`Unable to initiate checkout due to ${response.message}`);
-                  } else {
-                    window.location.href = response.checkout_url;
-                  }
-                } catch (error: any) {
-                  console.error("Checkout initiation failed:", error);
-                  alert(`Failed to initiate checkout: ${error.message || 'An unexpected error occurred.'}`);
-                } finally {
-                  setIsCheckoutLoading(false); // End loading regardless of success or failure
-                }
-              }}
-              isCheckoutLoading={isCheckoutLoading} // NEW: Pass the loading state to CartPage
-            />
-          )}
-          {activeTab === 'Settings' && <SettingsPage />}
-        </main>
-
-        {/* <RightSidebar
-          searchTerm={searchTerm}
-          onSearchChange={handleSearchChange}
-          onSearchSubmit={handleSearchSubmit} // <-- ADD THIS PROP
-        /> */}
-
-        <MobileBottomNav
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          cartItemCount={cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0)}
-          onCartIconClick={() => setIsCartSidebarOpen(true)}
-          onOrdersIconClick={() => setIsOrdersSidebarOpen(true)}
-        />
-
-        <CartSidebar
-          isOpen={isCartSidebarOpen}
-          onClose={() => setIsCartSidebarOpen(false)}
-          cartItems={cartItems}
-          removeCartItem={removeCartItem}
-          onViewCart={() => {
-            setActiveTab('Cart');
-            setIsCartSidebarOpen(false);
-          }}
-        />
-
-        {/* NEW: Orders Sidebar */}
-        <OrdersSidebar
-          isOpen={isOrdersSidebarOpen}
-          onClose={() => setIsOrdersSidebarOpen(false)}
-          orders={orders}
-          loading={loadingOrders}
-          error={errorOrders}
-        />
-      </>
-    );
-  };
-
   return (
     <BrowserRouter>
       <div className="flex bg-black min-h-screen min-w-screen text-white font-inter">
-        {/* Sidebar (left) */}
+        {/* Sidebar (always visible on desktop) */}
         {isAuthenticated && !showProfileUpdatePage && (
           <Sidebar
             activeTab={activeTab}
@@ -945,22 +775,174 @@ const addToCart = async (product: Product) => {
         {/* Main content */}
         <div className="flex-1 flex flex-col min-h-screen">
           <Routes>
-            <Route path="/user/:userId" element={<UserProfilePage addToCart={addToCart} />} />
-            <Route path="/" element={renderContent()} />
-            <Route path="/auth/callback" element={renderContent()} />
-            <Route path="/payments/order/confirm/" element={<OrderConfirmationPage />} />
+            {/* Public routes */}
+            <Route path="/auth/callback" element={<AuthCallbackPage />} />
+            <Route path="/signin" element={<SignInPage backendGoogleAuthUrl={'http://localhost:8080/signin'} />} />
+            <Route path="/activate" element={
+              <ActivateUserPage
+                onActivateSuccess={() => setShowProfileUpdatePage(false)}
+                updateUser={handleUserActivation}
+                loading={activateLoading}
+                error={null}
+                userDetails={currentUserDetails || undefined}
+              />
+            } />
+            {/* Protected routes */}
+            <Route
+              path="*"
+              element={
+                <RequireAuth isAuthenticated={isAuthenticated}>
+                  <Routes>
+                    <Route
+                      path="/"
+                      element={
+                        <HomePage
+                          posts={searchActive ? searchResults : posts}
+                          loading={searchActive ? loadingSearch : loadingPosts}
+                          error={searchActive ? errorSearch : errorPosts}
+                          addToCart={addToCart}
+                          hasMorePosts={hasMorePosts}
+                          loadingPosts={loadingPosts}
+                          currentPage={currentPage}
+                          loadPosts={loadPosts}
+                        />
+                      }
+                    />
+                    <Route
+                      path="/signin"
+                      element={
+                        <SignInPage backendGoogleAuthUrl={'http://localhost:8080/signin'} />
+                      }
+                    />
+                    <Route
+                      path="/activate"
+                      element={
+                        <ActivateUserPage
+                          onActivateSuccess={() => setShowProfileUpdatePage(false)}
+                          updateUser={handleUserActivation}
+                          loading={activateLoading}
+                          error={null}
+                          userDetails={currentUserDetails || undefined}
+                        />
+                      }
+                    />
+                    <Route
+                      path="/payments/order/confirm"
+                      element={<OrderConfirmationPage />}
+                    />
+                    <Route
+                      path="/user/:userId"
+                      element={<UserProfilePage addToCart={addToCart} />}
+                    />
+                    <Route
+                      path="/following"
+                      element={
+                        <div className="p-4 text-center text-gray-400">Following Feed Coming Soon!</div>
+                      }
+                    />
+                    <Route
+                      path="/products"
+                      element={
+                        <ProductsPage
+                          products={availableProducts}
+                          loading={loadingProducts}
+                          error={errorProducts}
+                          addToCart={addToCart}
+                        />
+                      }
+                    />
+                    <Route
+                      path="/create"
+                      element={
+                        <CreatePostPage
+                          availableProducts={userProducts}
+                          loadingProducts={loadingProducts}
+                          errorProducts={errorProducts}
+                          onCreatePost={handleCreatePost}
+                          onProductSuccess={handleProductSuccess}
+                          onPostSuccess={handlePostSuccess}
+                          currentUserId={currentUserId}
+                        />
+                      }
+                    />
+                    <Route
+                      path="/cart"
+                      element={
+                        <CartPage
+                          cartItems={cartItems}
+                          cartTotalAmount={cartTotalAmount}
+                          loading={loadingCart}
+                          error={errorCart}
+                          updateCartItemQuantity={updateCartItemQuantity}
+                          removeCartItem={removeCartItem}
+                          onCheckout={async () => {
+                            setIsCheckoutLoading(true);
+                            try {
+                              const response = await initiateCheckout();
+                              if (response.status === "INTERNAL_SERVER_ERROR") {
+                                alert(`Unable to initiate checkout due to ${response.message}`);
+                              } else {
+                                window.location.href = response.checkout_url;
+                              }
+                            } catch (error: any) {
+                              alert(`Failed to initiate checkout: ${error.message || 'An unexpected error occurred.'}`);
+                            } finally {
+                              setIsCheckoutLoading(false);
+                            }
+                          }}
+                          isCheckoutLoading={isCheckoutLoading}
+                        />
+                      }
+                    />
+                    <Route path="/settings" element={<SettingsPage />} />
+                    <Route path="/messages" element={<MessagesPage currentUserId={currentUserId ?? ''} />} />
+                    <Route path="/messages/:roomId" element={<MessageThreadWrapper currentUserId={currentUserId ?? ''} />} />
+                  </Routes>
+                </RequireAuth>
+              }
+            />
           </Routes>
         </div>
 
         {/* RightSidebar (right) */}
-        {isAuthenticated && !showProfileUpdatePage && (
+        {isAuthenticated && !showProfileUpdatePage && activeTab !== 'Messages' && (
           <RightSidebar
             searchTerm={searchTerm}
             onSearchChange={handleSearchChange}
             onSearchSubmit={handleSearchSubmit}
           />
         )}
+
+        {/* Mobile Bottom Nav (always visible, even on desktop) */}
+        <div className="fixed bottom-0 left-0 w-full md:hidden">
+          <MobileBottomNav
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            cartItemCount={cartItems.reduce((sum, item) => sum + (item.quantity || 0), 0)}
+            onCartIconClick={() => setIsCartSidebarOpen(true)}
+            onOrdersIconClick={() => setIsOrdersSidebarOpen(true)}
+          />
+        </div>
       </div>
+
+      {/* CartSidebar and OrdersSidebar can remain outside the main flex if you want overlays */}
+      <CartSidebar
+        isOpen={isCartSidebarOpen}
+        onClose={() => setIsCartSidebarOpen(false)}
+        cartItems={cartItems}
+        removeCartItem={removeCartItem}
+        onViewCart={() => {
+          setActiveTab('Cart');
+          setIsCartSidebarOpen(false);
+        }}
+      />
+      <OrdersSidebar
+        isOpen={isOrdersSidebarOpen}
+        onClose={() => setIsOrdersSidebarOpen(false)}
+        orders={orders}
+        loading={loadingOrders}
+        error={errorOrders}
+      />
     </BrowserRouter>
   );
 }

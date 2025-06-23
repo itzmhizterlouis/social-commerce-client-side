@@ -1,6 +1,7 @@
 // src/components/Sidebar.tsx
 import React from 'react';
-import { HomeIcon, UserGroupIcon, ShoppingBagIcon, PlusCircleIcon, ShoppingCartIcon, Cog6ToothIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline';
+import { HomeIcon, UserGroupIcon, ShoppingBagIcon, PlusCircleIcon, ShoppingCartIcon, Cog6ToothIcon, ClipboardDocumentListIcon, ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
 
 interface SidebarProps {
   activeTab: string;
@@ -35,7 +36,8 @@ const NavItem: React.FC<NavItemProps> = ({ icon: Icon, text, active, onClick, ba
   </div>
 );
 
-const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, cartItemCount, onCartIconClick, onOrdersIconClick }) => {
+const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, cartItemCount, onOrdersIconClick }) => {
+  const navigate = useNavigate(); 
   return (
     <div className="hidden md:flex flex-col w-16 lg:w-64 border-r border-gray-700 p-4 sticky top-0 h-screen overflow-y-auto">
       {/* Logo/App Name */}
@@ -51,38 +53,62 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, cartItemCoun
           icon={HomeIcon}
           text="Home"
           active={activeTab === 'Home'}
-          onClick={() => setActiveTab('Home')}
+          onClick={() => {
+            setActiveTab('Home');
+            navigate('/');
+          }}
         />
         <NavItem
           icon={UserGroupIcon}
           text="Following"
           active={activeTab === 'Following'}
-          onClick={() => setActiveTab('Following')}
+          onClick={() => {
+            setActiveTab('Following');
+            navigate('/following');
+          }}
         />
         <NavItem
           icon={ShoppingBagIcon}
           text="Products"
           active={activeTab === 'Products'}
-          onClick={() => setActiveTab('Products')}
+          onClick={() => {
+            setActiveTab('Products');
+            navigate('/products');
+          }}
         />
         <NavItem
           icon={PlusCircleIcon}
           text="Create"
           active={activeTab === 'Create'}
-          onClick={() => setActiveTab('Create')}
+          onClick={() => {
+            setActiveTab('Create');
+            navigate('/create');
+          }}
         />
         <NavItem
           icon={ShoppingCartIcon}
           text="Cart"
           active={activeTab === 'Cart'}
-          onClick={onCartIconClick}
+          onClick={() => {
+            setActiveTab('Cart');
+            navigate('/cart');
+          }}
           badgeContent={cartItemCount}
         />
         <NavItem
-          icon={ClipboardDocumentListIcon} // Use the imported icon
+          icon={ClipboardDocumentListIcon}
           text="Orders"
-          active={activeTab === 'Orders'} // Assuming 'Orders' will be a new active tab in App.tsx
-          onClick={onOrdersIconClick} // Use the new click handler
+          active={activeTab === 'Orders'}
+          onClick={onOrdersIconClick}
+        />
+        <NavItem
+          icon={ChatBubbleLeftIcon}
+          text="Messages"
+          active={activeTab === 'Messages'}
+          onClick={() => {
+            setActiveTab('Messages');
+            navigate('/messages');
+          }}
         />
 
       </nav>
@@ -92,7 +118,10 @@ const Sidebar: React.FC<SidebarProps> = ({ activeTab, setActiveTab, cartItemCoun
           icon={Cog6ToothIcon}
           text="Settings"
           active={activeTab === 'Settings'}
-          onClick={() => setActiveTab('Settings')}
+          onClick={() => {
+            setActiveTab('Settings');
+            navigate('/settings');
+          }}
         />
       </div>
     </div>

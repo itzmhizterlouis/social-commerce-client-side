@@ -1,12 +1,12 @@
-// src/components/MobileBottomNav.tsx
 import React from 'react';
-import { HomeIcon, UserGroupIcon, ShoppingBagIcon, PlusCircleIcon, ShoppingCartIcon, Cog6ToothIcon, ClipboardDocumentListIcon } from '@heroicons/react/24/outline'; // Import ShoppingCartIcon and Cog6ToothIcon
+import { HomeIcon, UserGroupIcon, ShoppingBagIcon, PlusCircleIcon, ShoppingCartIcon, Cog6ToothIcon, ClipboardDocumentListIcon, ChatBubbleLeftIcon } from '@heroicons/react/24/outline';
+import { useNavigate } from 'react-router-dom';
 
 interface MobileBottomNavProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  cartItemCount: number; // Add cartItemCount prop
-  onCartIconClick: () => void; // Add onCartIconClick prop
+  cartItemCount: number;
+  onCartIconClick: () => void;
   onOrdersIconClick: () => void;
 }
 
@@ -15,13 +15,13 @@ interface MobileNavItemProps {
   text: string;
   active?: boolean;
   onClick: () => void;
-  badgeContent?: number; // Optional prop for badge content (e.g., cart count)
+  badgeContent?: number;
 }
 
 const MobileNavItem: React.FC<MobileNavItemProps> = ({ icon: Icon, text, active, onClick, badgeContent }) => (
   <div
     className={`relative flex flex-col items-center p-2 cursor-pointer transition-colors duration-200
-      ${active ? 'text-indigo-400' : 'text-white hover:text-indigo-200'}`} // Non-active text is white
+      ${active ? 'text-indigo-400' : 'text-white hover:text-indigo-200'}`}
     onClick={onClick}
   >
     <Icon className="h-6 w-6" />
@@ -34,54 +34,91 @@ const MobileNavItem: React.FC<MobileNavItemProps> = ({ icon: Icon, text, active,
   </div>
 );
 
-const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ activeTab, setActiveTab, cartItemCount, onCartIconClick, onOrdersIconClick }) => {
+const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
+  activeTab,
+  setActiveTab,
+  cartItemCount,
+  onCartIconClick,
+  onOrdersIconClick,
+}) => {
+  const navigate = useNavigate();
+
   return (
-    // This navigation bar is fixed at the bottom and only visible on screens smaller than `md`
-    <div className="fixed bottom-0 left-0 w-full bg-gray-900 border-t border-gray-700 flex justify-around py-2 z-50 md:hidden">
+    <div className="fixed bottom-0 left-0 w-full bg-gray-900 border-t border-gray-700 flex justify-around py-2 z-50">
       <MobileNavItem
         icon={HomeIcon}
         text="Home"
         active={activeTab === 'Home'}
-        onClick={() => setActiveTab('Home')}
+        onClick={() => {
+          setActiveTab('Home');
+          navigate('/');
+        }}
       />
       <MobileNavItem
         icon={UserGroupIcon}
         text="Following"
         active={activeTab === 'Following'}
-        onClick={() => setActiveTab('Following')}
+        onClick={() => {
+          setActiveTab('Following');
+          navigate('/following');
+        }}
       />
       <MobileNavItem
         icon={PlusCircleIcon}
         text="Create"
         active={activeTab === 'Create'}
-        onClick={() => setActiveTab('Create')}
+        onClick={() => {
+          setActiveTab('Create');
+          navigate('/create');
+        }}
       />
       <MobileNavItem
         icon={ShoppingBagIcon}
         text="Products"
         active={activeTab === 'Products'}
-        onClick={() => setActiveTab('Products')}
+        onClick={() => {
+          setActiveTab('Products');
+          navigate('/products');
+        }}
       />
-      {/* NEW: Cart Nav Item */}
       <MobileNavItem
         icon={ShoppingCartIcon}
         text="Cart"
-        active={activeTab === 'Cart'} // Make it active if cart page is open
-        onClick={onCartIconClick} // Trigger sidebar open
-        badgeContent={cartItemCount} // Pass cart count to badge
+        active={activeTab === 'Cart'}
+        onClick={() => {
+          setActiveTab('Cart');
+          onCartIconClick();
+          navigate('/cart');
+        }}
+        badgeContent={cartItemCount}
       />
       <MobileNavItem
-        icon={ClipboardDocumentListIcon} // Use the imported icon
+        icon={ClipboardDocumentListIcon}
         text="Orders"
-        active={activeTab === 'Orders'} // Set active if 'Orders' tab is selected
-        onClick={onOrdersIconClick} // This triggers the orders sidebar
+        active={activeTab === 'Orders'}
+        onClick={() => {
+          setActiveTab('Orders');
+          onOrdersIconClick();
+          // Optionally navigate to an orders page if you have one
+        }}
       />
-      {/* Settings for Mobile is often here instead of a separate menu */}
       <MobileNavItem
-        icon={Cog6ToothIcon} // Changed to Cog6ToothIcon for consistency
+        icon={Cog6ToothIcon}
         text="Settings"
         active={activeTab === 'Settings'}
-        onClick={() => setActiveTab('Settings')}
+        onClick={() => {
+          setActiveTab('Settings');
+          navigate('/settings');
+        }}
+      />
+      <MobileNavItem
+        icon={ChatBubbleLeftIcon}
+        text="Messages"
+        active={activeTab === 'Messages'}
+        onClick={() => {
+          setActiveTab('Messages');
+          navigate('/messages');
+        }}
       />
     </div>
   );
